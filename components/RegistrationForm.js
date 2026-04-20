@@ -2,11 +2,13 @@
 
 import { useState, useRef } from 'react';
 import { db, storage } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { useRouter } from 'next/navigation';
 
 
 export default function RegistrationForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     dob: '',
@@ -20,7 +22,9 @@ export default function RegistrationForm() {
     allergyDetails: '',
     otherConditions: '',
     priorExperience: '',
+    selectedTreatment: '',
   });
+
 
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -66,6 +70,18 @@ export default function RegistrationForm() {
     const signatureDataUrl = canvas.toDataURL('image/png');
     
     try {
+      // Duplicate Check by HKID
+      if (formData.hkid) {
+        const patientsRef = collection(db, 'patients');
+        const q = query(patientsRef, where("hkid", "==", formData.hkid));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          alert('Error: A patient with this Identity Card Number already exists.');
+          return;
+        }
+      }
+
       // 1. Upload signature to Storage
       const signatureRef = ref(storage, `signatures/${Date.now()}_${formData.name.replace(/\s+/g, '_')}.png`);
       await uploadString(signatureRef, signatureDataUrl, 'data_url');
@@ -80,15 +96,17 @@ export default function RegistrationForm() {
       });
       
       console.log('Document written with ID: ', docRef.id);
-      alert('Registration successful!');
+      router.push(`/patient/${docRef.id}`);
     } catch (error) {
+
       console.error('Error adding document: ', error);
       alert('Error during registration. Please try again.');
     }
   };
 
+
   return (
-    <div className="max-w-5xl mx-auto p-10 bg-[#ffffff] border border-[#dadada] rounded-none font-sans text-[#1a1c1c]">
+    <div className="max-w-5xl mx-auto p-10 bg-[#ffffff] border border-[#dadada] rounded-md font-sans text-[#1a1c1c]">
       <h1 className="text-4xl font-serif font-light mb-8 text-[#1a1c1c]">Patient Registration</h1>
       
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -104,7 +122,7 @@ export default function RegistrationForm() {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
               />
             </div>
             
@@ -116,7 +134,7 @@ export default function RegistrationForm() {
                 value={formData.dob}
                 onChange={handleInputChange}
                 required
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
               />
             </div>
             
@@ -127,7 +145,7 @@ export default function RegistrationForm() {
                 value={formData.gender}
                 onChange={handleInputChange}
                 required
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
               >
                 <option value="">Select...</option>
                 <option value="Male">Male</option>
@@ -144,7 +162,7 @@ export default function RegistrationForm() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
               />
             </div>
             
@@ -156,7 +174,7 @@ export default function RegistrationForm() {
                 value={formData.hkid}
                 onChange={handleInputChange}
                 required
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
               />
             </div>
           </div>
@@ -172,7 +190,7 @@ export default function RegistrationForm() {
               name="takingMedication"
               checked={formData.takingMedication}
               onChange={handleInputChange}
-              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
+              className="h-4 w-4 border-[#c9c6bd] rounded-md text-[#1a1c1c] focus:ring-0"
             />
             <label className="text-sm text-[#48473f]">Taking Medication (服用藥物)</label>
           </div>
@@ -185,7 +203,7 @@ export default function RegistrationForm() {
                 value={formData.medicationDetails}
                 onChange={handleInputChange}
                 rows="3"
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
               />
             </div>
           )}
@@ -196,7 +214,7 @@ export default function RegistrationForm() {
               name="pregnantOrBreastfeeding"
               checked={formData.pregnantOrBreastfeeding}
               onChange={handleInputChange}
-              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
+              className="h-4 w-4 border-[#c9c6bd] rounded-md text-[#1a1c1c] focus:ring-0"
             />
             <label className="text-sm text-[#48473f]">Pregnant or Breastfeeding (懷孕或哺乳)</label>
           </div>
@@ -207,7 +225,7 @@ export default function RegistrationForm() {
               name="allergies"
               checked={formData.allergies}
               onChange={handleInputChange}
-              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
+              className="h-4 w-4 border-[#c9c6bd] rounded-md text-[#1a1c1c] focus:ring-0"
             />
             <label className="text-sm text-[#48473f]">Allergies (過敏史)</label>
           </div>
@@ -220,7 +238,7 @@ export default function RegistrationForm() {
                 value={formData.allergyDetails}
                 onChange={handleInputChange}
                 rows="3"
-                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
               />
             </div>
           )}
@@ -232,11 +250,32 @@ export default function RegistrationForm() {
               value={formData.otherConditions}
               onChange={handleInputChange}
               rows="3"
-              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
+              className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
             />
           </div>
         </div>
 
+          {/* Treatment Session */}
+          <div className="border-t border-[#dadada] pt-6">
+            <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Treatment Session</h2>
+            <div className="space-y-4">
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Select Desired Treatment *</label>
+              <select
+                name="selectedTreatment"
+                value={formData.selectedTreatment}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              >
+                <option value="">Select Treatment...</option>
+                <option value="Consultation">Initial Consultation</option>
+                <option value="Botox">Botox Treatment</option>
+                <option value="Filler">Dermal Filler</option>
+                <option value="Laser">Laser Rejuvenation</option>
+                <option value="Peel">Chemical Peel</option>
+              </select>
+            </div>
+          </div>
         {/* Authorization */}
         <div className="space-y-6 border-t border-[#dadada] pt-6">
           <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Authorization</h2>
@@ -248,7 +287,7 @@ export default function RegistrationForm() {
               value={formData.priorExperience}
               onChange={handleInputChange}
               rows="3"
-              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
+              className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
             />
           </div>
           
@@ -281,7 +320,7 @@ export default function RegistrationForm() {
         <div className="pt-6">
           <button
             type="submit"
-            className="w-full bg-[#1a1c1c] text-white p-4 rounded-none font-medium uppercase tracking-widest hover:bg-[#2f3131] transition"
+            className="w-full bg-[#1a1c1c] text-white p-4 rounded-md font-medium uppercase tracking-widest hover:bg-[#2f3131] transition"
           >
             Submit Registration
           </button>

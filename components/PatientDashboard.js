@@ -37,6 +37,9 @@ export default function PatientDashboard({ patientId }) {
   const [compareVisitBId, setCompareVisitBId] = useState(null);
   const [mediaA, setMediaA] = useState(null);
   const [mediaB, setMediaB] = useState(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editablePatient, setEditablePatient] = useState({});
+
 
   // Reset state when patient changes to prevent cross-patient data leakage
   useEffect(() => {
@@ -64,8 +67,11 @@ export default function PatientDashboard({ patientId }) {
         const patientSnap = await getDoc(patientRef);
         
         if (patientSnap.exists()) {
-          setPatient(patientSnap.data());
+          const data = patientSnap.data();
+          setPatient(data);
+          setEditablePatient(data);
         } else {
+
           console.log("No such patient!");
         }
 
@@ -200,6 +206,20 @@ export default function PatientDashboard({ patientId }) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setSignatureConfirmed(false);
   };
+
+  const handleSaveProfile = async () => {
+    try {
+      const patientRef = doc(db, 'patients', patientId);
+      await updateDoc(patientRef, editablePatient);
+      setPatient(editablePatient);
+      setIsEditingProfile(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error("Error updating profile: ", error);
+      alert('Error updating profile.');
+    }
+  };
+
 
 
   const handleNewVisit = async () => {
@@ -348,6 +368,180 @@ export default function PatientDashboard({ patientId }) {
 
 
 
+
+
+      {/* Patient Profile */}
+      <div className="border-t border-[#dadada] pt-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Patient Profile</h2>
+          {!isEditingProfile ? (
+            <button
+              onClick={() => setIsEditingProfile(true)}
+              className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline transition"
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveProfile}
+                className="text-xs uppercase tracking-widest text-green-600 hover:text-green-800 underline transition"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditingProfile(false);
+                  setEditablePatient(patient); // Reset changes
+                }}
+                className="text-xs uppercase tracking-widest text-red-600 hover:text-red-800 underline transition"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#ffffff] p-6 border border-[#dadada] rounded-md">
+          <div>
+            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Client Information</h3>
+            {!isEditingProfile ? (
+              <>
+                <p className="text-sm font-sans"><strong>Name:</strong> {patient.name}</p>
+                <p className="text-sm font-sans"><strong>DOB:</strong> {patient.dob}</p>
+                <p className="text-sm font-sans"><strong>Gender:</strong> {patient.gender}</p>
+                <p className="text-sm font-sans"><strong>Phone:</strong> {patient.phone}</p>
+                <p className="text-sm font-sans"><strong>HKID:</strong> {patient.hkid}</p>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={editablePatient.name || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, name: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                  placeholder="Name"
+                />
+                <input
+                  type="date"
+                  value={editablePatient.dob || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, dob: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                />
+                <select
+                  value={editablePatient.gender || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, gender: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input
+                  type="tel"
+                  value={editablePatient.phone || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, phone: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                  placeholder="Phone"
+                />
+                <input
+                  type="text"
+                  value={editablePatient.hkid || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, hkid: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                  placeholder="HKID"
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Health Condition</h3>
+            {!isEditingProfile ? (
+              <>
+                <p className="text-sm font-sans"><strong>Taking Medication:</strong> {patient.takingMedication ? 'Yes' : 'No'}</p>
+                {patient.takingMedication && <p className="text-sm font-sans ml-4 text-[#79776f]">{patient.medicationDetails}</p>}
+                <p className="text-sm font-sans"><strong>Pregnant/Breastfeeding:</strong> {patient.pregnantOrBreastfeeding ? 'Yes' : 'No'}</p>
+                <p className="text-sm font-sans"><strong>Allergies:</strong> {patient.allergies ? 'Yes' : 'No'}</p>
+                {patient.allergies && <p className="text-sm font-sans ml-4 text-[#79776f]">{patient.allergyDetails}</p>}
+                {patient.otherConditions && <p className="text-sm font-sans"><strong>Other:</strong> {patient.otherConditions}</p>}
+              </>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={editablePatient.takingMedication || false}
+                    onChange={(e) => setEditablePatient({...editablePatient, takingMedication: e.target.checked})}
+                  />
+                  <label className="text-sm">Taking Medication</label>
+                </div>
+                {editablePatient.takingMedication && (
+                  <textarea
+                    value={editablePatient.medicationDetails || ''}
+                    onChange={(e) => setEditablePatient({...editablePatient, medicationDetails: e.target.value})}
+                    className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                    placeholder="Medication Details"
+                  />
+                )}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={editablePatient.pregnantOrBreastfeeding || false}
+                    onChange={(e) => setEditablePatient({...editablePatient, pregnantOrBreastfeeding: e.target.checked})}
+                  />
+                  <label className="text-sm">Pregnant/Breastfeeding</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={editablePatient.allergies || false}
+                    onChange={(e) => setEditablePatient({...editablePatient, allergies: e.target.checked})}
+                  />
+                  <label className="text-sm">Allergies</label>
+                </div>
+                {editablePatient.allergies && (
+                  <textarea
+                    value={editablePatient.allergyDetails || ''}
+                    onChange={(e) => setEditablePatient({...editablePatient, allergyDetails: e.target.value})}
+                    className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                    placeholder="Allergy Details"
+                  />
+                )}
+                <textarea
+                  value={editablePatient.otherConditions || ''}
+                  onChange={(e) => setEditablePatient({...editablePatient, otherConditions: e.target.value})}
+                  className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+                  placeholder="Other Conditions"
+                />
+              </div>
+            )}
+          </div>
+          <div className="col-span-2 border-t border-[#eeeeee] pt-4">
+            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Treatment Interests</h3>
+            {!isEditingProfile ? (
+              <p className="text-sm font-sans">{patient.selectedTreatment || 'None selected at registration'}</p>
+            ) : (
+              <select
+                value={editablePatient.selectedTreatment || ''}
+                onChange={(e) => setEditablePatient({...editablePatient, selectedTreatment: e.target.value})}
+                className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
+              >
+                <option value="">Select Treatment...</option>
+                <option value="Consultation">Initial Consultation</option>
+                <option value="Botox">Botox Treatment</option>
+                <option value="Filler">Dermal Filler</option>
+                <option value="Laser">Laser Rejuvenation</option>
+                <option value="Peel">Chemical Peel</option>
+              </select>
+            )}
+          </div>
+          <div className="col-span-2 border-t border-[#eeeeee] pt-4">
+            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Purchased Products</h3>
+            <p className="text-sm font-sans text-[#79776f]">No products purchased yet.</p>
+          </div>
+        </div>
+      </div>
 
 
       {/* Visit History */}
@@ -545,18 +739,27 @@ export default function PatientDashboard({ patientId }) {
                           />
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm("Are you sure you want to unlock this visit for re-signing? This will require a new deduction authorization.")) {
-                            setOverrideCheckoutLock(true);
-                            setSignatureConfirmed(false);
-                          }
-                        }}
-                        className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline"
-                      >
-                        Unlock to Re-sign
-                      </button>
+                      <div className="flex flex-col gap-3 items-end">
+                        <button
+                          type="button"
+                          onClick={() => window.open(`/patient/${patientId}/visit/${selectedVisitId}/print`, '_blank')}
+                          className="text-xs uppercase tracking-widest text-[#1a1c1c] hover:text-[#605f54] underline"
+                        >
+                          Print Summary
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to unlock this visit for re-signing? This will require a new deduction authorization.")) {
+                              setOverrideCheckoutLock(true);
+                              setSignatureConfirmed(false);
+                            }
+                          }}
+                          className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline"
+                        >
+                          Unlock to Re-sign
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
