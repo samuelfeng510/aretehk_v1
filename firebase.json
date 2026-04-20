@@ -1,4 +1,7 @@
 {
+  "hosting": {
+    "source": "."
+  },
   "firestore": {
     "database": "(default)",
     "location": "nam5",

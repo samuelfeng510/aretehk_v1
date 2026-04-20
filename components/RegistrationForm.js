@@ -37,11 +37,30 @@ export default function RegistrationForm() {
     }));
   };
 
+  const getCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    if (e.touches && e.touches.length > 0) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    }
+    
+    return {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY
+    };
+  };
+
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    const { x, y } = getCoordinates(e);
+    
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.moveTo(x, y);
     setIsDrawing(true);
   };
 
@@ -49,13 +68,20 @@ export default function RegistrationForm() {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    const { x, y } = getCoordinates(e);
+    
+    ctx.lineTo(x, y);
     ctx.stroke();
+    
+    if (e.cancelable) {
+      e.preventDefault();
+    }
   };
 
   const stopDrawing = () => {
     setIsDrawing(false);
   };
+
 
   const clearSignature = () => {
     const canvas = canvasRef.current;
@@ -302,8 +328,12 @@ export default function RegistrationForm() {
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseLeave={stopDrawing}
-                className="cursor-crosshair"
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                className="cursor-crosshair touch-none"
               />
+
               <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
                 <button
                   type="button"

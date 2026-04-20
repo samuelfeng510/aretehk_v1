@@ -180,11 +180,30 @@ export default function PatientDashboard({ patientId }) {
 
 
 
+  const getCoordinatesDeduct = (e) => {
+    const canvas = deductCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    if (e.touches && e.touches.length > 0) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    }
+    
+    return {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY
+    };
+  };
+
   const startDrawingDeduct = (e) => {
     const canvas = deductCanvasRef.current;
     const ctx = canvas.getContext('2d');
+    const { x, y } = getCoordinatesDeduct(e);
+    
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.moveTo(x, y);
     setIsDrawingDeduct(true);
   };
 
@@ -192,13 +211,20 @@ export default function PatientDashboard({ patientId }) {
     if (!isDrawingDeduct) return;
     const canvas = deductCanvasRef.current;
     const ctx = canvas.getContext('2d');
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    const { x, y } = getCoordinatesDeduct(e);
+    
+    ctx.lineTo(x, y);
     ctx.stroke();
+    
+    if (e.cancelable) {
+      e.preventDefault();
+    }
   };
 
   const stopDrawingDeduct = () => {
     setIsDrawingDeduct(false);
   };
+
 
   const clearSignatureDeduct = () => {
     const canvas = deductCanvasRef.current;
@@ -316,7 +342,8 @@ export default function PatientDashboard({ patientId }) {
           <Link href="/" className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] transition mb-2 block">
             ← Back to Patient List
           </Link>
-          <h1 className="text-4xl font-serif font-light text-[#1a1c1c]">{patient.name}'s Dashboard</h1>
+          <h1 className="text-2xl sm:text-4xl font-serif font-light text-[#1a1c1c]">{patient.name}'s Dashboard</h1>
+
         </div>
         <div className="text-sm uppercase tracking-widest text-[#605f54]">
           Balance: <span className="text-lg font-serif text-[#1a1c1c]">{patient.currentCreditBalance || 0}</span> Credits
@@ -373,7 +400,8 @@ export default function PatientDashboard({ patientId }) {
       {/* Patient Profile */}
       <div className="border-t border-[#dadada] pt-8 space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Patient Profile</h2>
+          <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c]">Patient Profile</h2>
+
           {!isEditingProfile ? (
             <button
               onClick={() => setIsEditingProfile(true)}
@@ -546,7 +574,8 @@ export default function PatientDashboard({ patientId }) {
 
       {/* Visit History */}
       <div className="border-t border-[#dadada] pt-8">
-        <h2 className="text-3xl font-serif font-light text-[#1a1c1c] mb-6">Visit History</h2>
+        <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c] mb-6">Visit History</h2>
+
         {visits.length === 0 ? (
           <p className="text-[#79776f] font-sans">No visits recorded yet.</p>
         ) : (
@@ -586,7 +615,8 @@ export default function PatientDashboard({ patientId }) {
       {/* Clinical Remarks Section */}
       {selectedVisitId && (
         <div className="border-t border-[#dadada] pt-8 space-y-8">
-          <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Visit Details</h2>
+          <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c]">Visit Details</h2>
+
           
           <ClinicalRemarksForm 
             patientId={patientId} 
@@ -707,8 +737,12 @@ export default function PatientDashboard({ patientId }) {
                           onMouseMove={drawDeduct}
                           onMouseUp={stopDrawingDeduct}
                           onMouseLeave={stopDrawingDeduct}
-                          className="cursor-crosshair"
+                          onTouchStart={startDrawingDeduct}
+                          onTouchMove={drawDeduct}
+                          onTouchEnd={stopDrawingDeduct}
+                          className="cursor-crosshair touch-none"
                         />
+
                         <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
                           <button
                             type="button"
@@ -773,7 +807,8 @@ export default function PatientDashboard({ patientId }) {
 
       {/* Cross-Visit Comparison Section */}
       <div className="border-t border-[#dadada] pt-8 space-y-6">
-        <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Cross-Visit Comparison</h2>
+        <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c]">Cross-Visit Comparison</h2>
+
         <p className="text-sm text-[#79776f] font-sans">Select any two visits to compare photos.</p>
         
         <div className="flex gap-6 items-center">
