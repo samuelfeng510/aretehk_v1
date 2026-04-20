@@ -8,7 +8,9 @@ export default function SystemSettings() {
     currencySymbol: '$',
     defaultStaffName: 'Dr. Aris Thorne',
     enableNotifications: true,
+    language: 'en',
   });
+
 
   useEffect(() => {
     // Load from localStorage if available
@@ -35,7 +37,7 @@ export default function SystemSettings() {
   };
 
   return (
-    <div className="bg-[#ffffff] p-8 border border-[#dadada] rounded-none font-sans text-[#1a1c1c] max-w-2xl">
+    <div className="bg-[#ffffff] p-8 border border-[#dadada] rounded-md font-sans text-[#1a1c1c] max-w-2xl">
       <h2 className="text-2xl font-serif italic text-[#1a1c1c] mb-6">System Settings</h2>
       
       <div className="space-y-6">
@@ -46,7 +48,7 @@ export default function SystemSettings() {
             name="clinicName"
             value={settings.clinicName}
             onChange={handleChange}
-            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
           />
         </div>
 
@@ -57,7 +59,7 @@ export default function SystemSettings() {
             name="currencySymbol"
             value={settings.currencySymbol}
             onChange={handleChange}
-            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
           />
         </div>
 
@@ -68,17 +70,31 @@ export default function SystemSettings() {
             name="defaultStaffName"
             value={settings.defaultStaffName}
             onChange={handleChange}
-            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
           />
         </div>
 
+        <div>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Default Language</label>
+          <select
+            name="language"
+            value={settings.language || 'en'}
+            onChange={handleChange}
+            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+          >
+            <option value="en">English</option>
+            <option value="zh">中文 (Chinese)</option>
+          </select>
+        </div>
+
         <div className="flex items-center gap-3">
+
           <input
             type="checkbox"
             name="enableNotifications"
             checked={settings.enableNotifications}
             onChange={handleChange}
-            className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
+            className="h-4 w-4 border-[#c9c6bd] rounded-md text-[#1a1c1c] focus:ring-0"
           />
           <label className="text-sm text-[#48473f]">Enable System Notifications</label>
         </div>
@@ -86,7 +102,7 @@ export default function SystemSettings() {
         <div className="pt-4">
           <button
             onClick={handleSave}
-            className="w-full bg-[#1a1c1c] text-white p-4 rounded-none font-medium uppercase tracking-widest hover:bg-[#2f3131] transition"
+            className="w-full bg-[#1a1c1c] text-white p-4 rounded-md font-medium uppercase tracking-widest hover:bg-[#2f3131] transition"
           >
             Save Settings
           </button>

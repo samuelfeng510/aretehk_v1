@@ -122,7 +122,8 @@ export default function RegistrationForm() {
       });
       
       console.log('Document written with ID: ', docRef.id);
-      router.push(`/patient/${docRef.id}`);
+      router.push('/');
+
     } catch (error) {
 
       console.error('Error adding document: ', error);
@@ -139,7 +140,8 @@ export default function RegistrationForm() {
         {/* Client Information */}
         <div>
           <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Client Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
             <div>
               <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Name (姓名) *</label>
               <input

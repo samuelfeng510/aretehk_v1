@@ -432,7 +432,8 @@ export default function PatientDashboard({ patientId }) {
           )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#ffffff] p-6 border border-[#dadada] rounded-md">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#ffffff] p-6 border border-[#dadada] rounded-md">
+
           <div>
             <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Client Information</h3>
             {!isEditingProfile ? (
@@ -547,7 +548,8 @@ export default function PatientDashboard({ patientId }) {
               </div>
             )}
           </div>
-          <div className="col-span-2 border-t border-[#eeeeee] pt-4">
+          <div className="col-span-1 lg:col-span-2 border-t border-[#eeeeee] pt-4">
+
             <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Treatment Interests</h3>
             {!isEditingProfile ? (
               <p className="text-sm font-sans">{patient.selectedTreatment || 'None selected at registration'}</p>
@@ -566,7 +568,8 @@ export default function PatientDashboard({ patientId }) {
               </select>
             )}
           </div>
-          <div className="col-span-2 border-t border-[#eeeeee] pt-4">
+          <div className="col-span-1 lg:col-span-2 border-t border-[#eeeeee] pt-4">
+
             <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Purchased Products</h3>
             <p className="text-sm font-sans text-[#79776f]">No products purchased yet.</p>
           </div>

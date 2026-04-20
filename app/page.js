@@ -54,6 +54,15 @@ export default function Home() {
   const t = translations[lang];
 
   useEffect(() => {
+    // Load language from settings
+    const savedSettings = localStorage.getItem('systemSettings');
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings);
+      if (parsed.language) {
+        setLang(parsed.language);
+      }
+    }
+
     async function fetchPatients() {
       try {
         const q = query(collection(db, 'patients'), orderBy('createdAt', 'desc'));
@@ -69,6 +78,7 @@ export default function Home() {
     fetchPatients();
   }, []);
 
+
   return (
     <div className="min-h-screen bg-[#f9f9f9] p-10 font-sans text-[#1a1c1c]">
       <div className="max-w-5xl mx-auto space-y-12">
@@ -77,33 +87,14 @@ export default function Home() {
 
           <div className="flex items-center gap-4">
             <div className="text-xs uppercase tracking-widest text-[#605f54]">{t.loggedInAs}</div>
-            <div className="flex items-center gap-1">
-              <span className="text-sm">🌐</span>
-              <select 
-                value={lang} 
-                onChange={(e) => setLang(e.target.value)}
-                className="text-xs uppercase tracking-widest text-[#605f54] bg-transparent border-none focus:outline-none cursor-pointer"
-              >
-                <option value="en">EN</option>
-                <option value="zh">繁</option>
-              </select>
-            </div>
+
           </div>
         </header>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Link href="/register" className="bg-[#ffffff] p-8 border border-[#dadada] hover:border-[#1a1c1c] transition flex flex-col justify-between min-h-40 rounded-md">
-
-            <div>
-              <h2 className="text-2xl font-serif italic text-[#1a1c1c]">{t.registerNewPatient}</h2>
-
-              <p className="text-[#79776f] text-sm mt-2 leading-relaxed">{t.onboardNewPatient}</p>
-            </div>
-            <span className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline">{t.goToRegistration} &rarr;</span>
-          </Link>
-
+        <div className="grid grid-cols-1 gap-6">
           <div className="bg-[#ffffff] p-8 border border-[#dadada] flex flex-col justify-between min-h-40 rounded-md">
+
 
             <div>
               <h2 className="text-2xl font-serif italic text-[#1a1c1c]">{t.clinicStats}</h2>
