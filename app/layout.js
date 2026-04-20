@@ -20,10 +20,10 @@ export default function RootLayout({ children }) {
             </div>
 
             <nav className="space-y-4">
-              <a href="/" className="flex items-center gap-3 text-base font-medium text-[#3d2813] hover:text-[#5c4028] transition">
+              <a href="/" className="flex items-center gap-3 text-lg font-medium text-[#3d2813] hover:text-[#5c4028] transition">
                 <span>👥</span> Patients
               </a>
-              <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-base font-medium text-[#5c4028] hover:text-[#3d2813] transition">
+              <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-medium text-[#5c4028] hover:text-[#3d2813] transition">
                 <span>📅</span> Appointments
 
               </a>
@@ -34,10 +34,10 @@ export default function RootLayout({ children }) {
           </div>
 
           <div className="space-y-4 border-t border-[#dadada] pt-6">
-            <a href="/settings" className="flex items-center gap-3 text-base font-medium text-[#5c4028] hover:text-[#3d2813] transition">
+            <a href="/settings" className="flex items-center gap-3 text-lg font-medium text-[#5c4028] hover:text-[#3d2813] transition">
               <span>⚙️</span> System Settings
             </a>
-            <a href="#" className="flex items-center gap-3 text-base font-medium text-[#5c4028] hover:text-[#3d2813] transition">
+            <a href="#" className="flex items-center gap-3 text-lg font-medium text-[#5c4028] hover:text-[#3d2813] transition">
               <span>❓</span> Support
             </a>
 

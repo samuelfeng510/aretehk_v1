@@ -92,8 +92,9 @@ export default function Home() {
         </header>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Link href="/register" className="bg-[#ffffff] p-8 border border-[#dadada] hover:border-[#1a1c1c] transition flex flex-col justify-between h-40 rounded-md">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Link href="/register" className="bg-[#ffffff] p-8 border border-[#dadada] hover:border-[#1a1c1c] transition flex flex-col justify-between min-h-40 rounded-md">
+
             <div>
               <h2 className="text-2xl font-serif italic text-[#1a1c1c]">{t.registerNewPatient}</h2>
 
@@ -102,7 +103,8 @@ export default function Home() {
             <span className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline">{t.goToRegistration} &rarr;</span>
           </Link>
 
-          <div className="bg-[#ffffff] p-8 border border-[#dadada] flex flex-col justify-between h-40 rounded-md">
+          <div className="bg-[#ffffff] p-8 border border-[#dadada] flex flex-col justify-between min-h-40 rounded-md">
+
             <div>
               <h2 className="text-2xl font-serif italic text-[#1a1c1c]">{t.clinicStats}</h2>
 
