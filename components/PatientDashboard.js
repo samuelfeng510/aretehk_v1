@@ -365,7 +365,9 @@ export default function PatientDashboard({ patientId }) {
               onClick={() => setIsAddCreditUnlocked(true)}
               className="bg-[#eeeeee] text-[#1a1c1c] px-4 py-3 rounded-none hover:bg-[#e2e2e2] transition text-sm uppercase tracking-widest flex items-center gap-2"
             >
-              🔒 Unlock Add Credit
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Unlock Add Credit
+
             </button>
           ) : (
             <>

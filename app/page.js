@@ -128,11 +128,12 @@ export default function Home() {
               <table className="min-w-full divide-y divide-[#dadada]">
                 <thead>
                   <tr className="bg-[#f9f9f9]">
-                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">{t.name}</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">{t.hkid}</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">{t.phone}</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">{t.balance}</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">{t.action}</th>
+                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.name}</th>
+                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.hkid}</th>
+                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.phone}</th>
+                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.balance}</th>
+                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.action}</th>
+
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#eeeeee]">

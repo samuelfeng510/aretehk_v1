@@ -64,40 +64,43 @@ export default function ImageUploader({ patientId, visitId, onSuccess }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 space-y-4">
-      <h2 className="text-xl font-semibold text-gray-800">Upload Progress Photos</h2>
+    <div className="bg-white p-6 rounded-md border border-[#dadada] space-y-4">
+      <h2 className="text-xl font-serif font-light text-[#1a1c1c]">Upload Progress Photos</h2>
+
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Before Treatment</label>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Before Treatment</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleFileChange(e, 'before')}
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="mt-1 block w-full text-sm text-[#79776f] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#dadada] file:text-xs file:uppercase file:tracking-widest file:bg-[#eeeeee] file:text-[#1a1c1c] hover:file:bg-[#e2e2e2] file:transition"
           />
           {beforeFile && <p className="mt-1 text-sm text-green-600">Selected: {beforeFile.name}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">After Treatment</label>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">After Treatment</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleFileChange(e, 'after')}
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="mt-1 block w-full text-sm text-[#79776f] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#dadada] file:text-xs file:uppercase file:tracking-widest file:bg-[#eeeeee] file:text-[#1a1c1c] hover:file:bg-[#e2e2e2] file:transition"
           />
           {afterFile && <p className="mt-1 text-sm text-green-600">Selected: {afterFile.name}</p>}
         </div>
+
       </div>
 
       <button
         onClick={handleUpload}
         disabled={loading}
-        className="w-full bg-blue-600 text-white p-2 rounded-md font-semibold hover:bg-blue-700 transition disabled:bg-gray-400"
+        className="w-full bg-[#1a1c1c] text-white p-3 rounded-md text-sm uppercase tracking-widest hover:bg-[#2f3131] transition disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
       >
         {loading ? 'Uploading...' : 'Upload Images'}
       </button>
+
     </div>
   );
 }
