@@ -633,11 +633,12 @@ export default function PatientDashboard({ patientId }) {
                     <span className="text-xs uppercase tracking-widest text-[#79776f]">ID: {visit.id.substring(0, 6)}</span>
 
                     <button
-                      onClick={() => setSelectedVisitId(visit.id)}
+                      onClick={() => setSelectedVisitId(selectedVisitId === visit.id ? null : visit.id)}
                       className={`text-xs uppercase tracking-widest font-medium transition ${selectedVisitId === visit.id ? 'text-[#1a1c1c]' : 'text-[#605f54] hover:text-[#1a1c1c]'}`}
                     >
-                      {selectedVisitId === visit.id ? 'Selected' : 'Details'}
+                      {selectedVisitId === visit.id ? 'Collapse' : 'Details'}
                     </button>
+
                   </div>
                 </div>
 
@@ -649,210 +650,208 @@ export default function PatientDashboard({ patientId }) {
                     <span className="font-sans text-[#c9c6bd]">None logged</span>
                   )}
                 </div>
+
+                {/* Inline Visit Details */}
+                {selectedVisitId === visit.id && (
+                  <div className="mt-4 bg-[#ffffff] p-6 border border-[#dadada] rounded-md space-y-8">
+                    <h3 className="text-lg font-serif text-[#1a1c1c]">Visit Details</h3>
+                    
+                    <ClinicalRemarksForm 
+                      patientId={patientId} 
+                      visitId={selectedVisitId} 
+                      onSuccess={() => {
+                        setSelectedVisitId(null);
+                        setTimeout(() => setSelectedVisitId(selectedVisitId), 100);
+                      }}
+                    />
+                    
+                    {/* Visual Documentation */}
+                    <div className="border-t border-[#dadada] pt-6 space-y-4">
+                      <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54]">Visual Documentation</h4>
+                      <div>
+                        <ImageUploader 
+                          patientId={patientId} 
+                          visitId={selectedVisitId} 
+                          onSuccess={() => {
+                            setSelectedVisitId(null);
+                            setTimeout(() => setSelectedVisitId(selectedVisitId), 100);
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-4">Remarks for Visit #{visits.length - visits.findIndex(v => v.id === selectedVisitId)}</h4>
+                      {remarks.length === 0 ? (
+                        <p className="text-[#79776f] text-sm font-sans">No remarks logged for this visit.</p>
+                      ) : (
+                        <ul className="space-y-4 divide-y divide-[#eeeeee]">
+                          {remarks.map((remark) => (
+                            <li key={remark.id} className="pt-4 first:pt-0 flex flex-col space-y-1">
+                              <div className="flex justify-between items-baseline">
+                                <span className="font-medium text-[#1a1c1c]">{remark.anatomicalSite} — {remark.dosage} ml</span>
+                                <span className="text-xs text-[#79776f]">
+                                  {remark.createdAt?.toDate ? remark.createdAt.toDate().toLocaleString() : ''}
+                                </span>
+                              </div>
+                              <p className="text-[#48473f] text-sm leading-relaxed">{remark.narrative}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    {/* Visit Summary & Checkout */}
+                    <div className="border-t border-[#dadada] pt-6 space-y-4">
+                      <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54]">Visit Summary & Checkout</h4>
+                      
+                      <div className="bg-[#ffffff] p-6 border border-[#dadada] space-y-6">
+                        <div>
+                          <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Treatments Performed</h4>
+
+                          {remarks.length === 0 ? (
+                            <p className="text-[#79776f] text-sm">No treatments logged.</p>
+                          ) : (
+                            <ul className="list-disc list-inside text-sm text-[#48473f] space-y-1">
+                              {remarks.map((remark) => (
+                                <li key={remark.id}>{remark.anatomicalSite} — {remark.dosage} ml</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Visual Proof</h4>
+
+                          <div className="flex gap-6 mt-2">
+                            {media?.beforeUrl && (
+                              <div>
+                                <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">Before</p>
+
+                                <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
+                              </div>
+                            )}
+                            {media?.afterUrl && (
+                              <div>
+                                <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">After</p>
+
+                                <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
+                              </div>
+                            )}
+                            {!media?.beforeUrl && !media?.afterUrl && (
+                              <p className="text-[#79776f] text-sm">No photos uploaded.</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Deduct Credits Form */}
+                        <div className="border-t border-[#dadada] pt-6">
+                          <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-4">Authorize Deduction</h4>
+
+                          <div className="space-y-6">
+                            <div className="flex gap-4 items-center">
+                              <input
+                                type="number"
+                                value={deductAmount}
+                                onChange={(e) => setDeductAmount(e.target.value)}
+                                placeholder="Amount"
+                                className="border border-[#c9c6bd] rounded-md p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+
+                              />
+                              <button
+                                onClick={handleDeduct}
+                                disabled={!signatureConfirmed || (visits.find(v => v.id === selectedVisitId)?.isCheckedOut && !overrideCheckoutLock)}
+                                className="bg-[#1a1c1c] text-white px-6 py-3 rounded-md hover:bg-[#2f3131] transition text-sm uppercase tracking-widest disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
+
+                              >
+                                Confirm & Deduct
+                              </button>
+                            </div>
+                            
+                            {!(visits.find(v => v.id === selectedVisitId)?.isCheckedOut) || overrideCheckoutLock ? (
+                              <div className="space-y-2">
+                                <label className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] block">Patient Signature *</label>
+
+                                <div className="border border-[#dadada] bg-white w-fit">
+                                  <canvas
+                                    ref={deductCanvasRef}
+                                    width={400}
+                                    height={150}
+                                    onMouseDown={startDrawingDeduct}
+                                    onMouseMove={drawDeduct}
+                                    onMouseUp={stopDrawingDeduct}
+                                    onMouseLeave={stopDrawingDeduct}
+                                    onTouchStart={startDrawingDeduct}
+                                    onTouchMove={drawDeduct}
+                                    onTouchEnd={stopDrawingDeduct}
+                                    className="cursor-crosshair touch-none"
+                                  />
+
+                                  <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
+                                    <button
+                                      type="button"
+                                      onClick={clearSignatureDeduct}
+                                      className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] transition"
+                                    >
+                                      Clear Signature
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSignatureConfirmed(true)}
+                                      className={`text-xs uppercase tracking-widest font-medium transition ${signatureConfirmed ? 'text-[#605f54]' : 'text-[#1a1c1c] hover:text-[#605f54]'}`}
+                                    >
+                                      {signatureConfirmed ? '✓ Confirmed' : 'Confirm Signature'}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="border border-[#c9c6bd] bg-[#f9f9f9] p-6 flex justify-between items-center w-full max-w-md">
+                                <div>
+                                  <p className="text-xs uppercase tracking-widest text-[#605f54] mb-2">✓ Visit Signed & Confirmed</p>
+                                  {visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl && (
+                                    <img 
+                                      src={visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl} 
+                                      alt="Signature" 
+                                      className="w-32 h-16 object-contain mt-2 border border-[#dadada] bg-white" 
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex flex-col gap-3 items-end">
+                                  <button
+                                    type="button"
+                                    onClick={() => window.open(`/patient/${patientId}/visit/${selectedVisitId}/print`, '_blank')}
+                                    className="text-xs uppercase tracking-widest text-[#1a1c1c] hover:text-[#605f54] underline"
+                                  >
+                                    Print Summary
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (window.confirm("Are you sure you want to unlock this visit for re-signing? This will require a new deduction authorization.")) {
+                                        setOverrideCheckoutLock(true);
+                                        setSignatureConfirmed(false);
+                                      }
+                                    }}
+                                    className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline"
+                                  >
+                                    Unlock to Re-sign
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {/* Clinical Remarks Section */}
-      {selectedVisitId && (
-        <div className="border-t border-[#dadada] pt-8 space-y-8">
-          <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c]">Visit Details</h2>
-
-          
-          <ClinicalRemarksForm 
-            patientId={patientId} 
-            visitId={selectedVisitId} 
-            onSuccess={() => {
-              // Trigger refetch of remarks
-              setSelectedVisitId(null);
-              setTimeout(() => setSelectedVisitId(selectedVisitId), 100);
-            }}
-          />
-          
-          {/* Visual Documentation */}
-          <div className="border-t border-[#dadada] pt-6 space-y-4">
-            <h3 className="text-xl font-serif font-light text-[#1a1c1c]">Visual Documentation</h3>
-            <div>
-              <ImageUploader 
-                patientId={patientId} 
-                visitId={selectedVisitId} 
-                onSuccess={() => {
-                  // Trigger refetch of media
-                  setSelectedVisitId(null);
-                  setTimeout(() => setSelectedVisitId(selectedVisitId), 100);
-                }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Remarks for Visit #{visits.length - visits.findIndex(v => v.id === selectedVisitId)}</h3>
-            {remarks.length === 0 ? (
-              <p className="text-[#79776f] font-sans">No remarks logged for this visit.</p>
-            ) : (
-              <ul className="space-y-4 divide-y divide-[#eeeeee]">
-                {remarks.map((remark) => (
-                  <li key={remark.id} className="pt-4 first:pt-0 flex flex-col space-y-1">
-                    <div className="flex justify-between items-baseline">
-                      <span className="font-medium text-[#1a1c1c]">{remark.anatomicalSite} — {remark.dosage} ml</span>
-                      <span className="text-xs text-[#79776f]">
-                        {remark.createdAt?.toDate ? remark.createdAt.toDate().toLocaleString() : ''}
-                      </span>
-                    </div>
-                    <p className="text-[#48473f] text-sm leading-relaxed">{remark.narrative}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Visit Summary & Checkout */}
-          <div className="border-t border-[#dadada] pt-6 space-y-4">
-            <h3 className="text-xl font-serif font-light text-[#1a1c1c]">Visit Summary & Checkout</h3>
-            
-            <div className="bg-[#ffffff] p-6 border border-[#dadada] space-y-6">
-              <div>
-                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Treatments Performed</h4>
-
-                {remarks.length === 0 ? (
-                  <p className="text-[#79776f] text-sm">No treatments logged.</p>
-                ) : (
-                  <ul className="list-disc list-inside text-sm text-[#48473f] space-y-1">
-                    {remarks.map((remark) => (
-                      <li key={remark.id}>{remark.anatomicalSite} — {remark.dosage} ml</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div>
-                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Visual Proof</h4>
-
-                <div className="flex gap-6 mt-2">
-                  {media?.beforeUrl && (
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">Before</p>
-
-                      <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
-                    </div>
-                  )}
-                  {media?.afterUrl && (
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">After</p>
-
-                      <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
-                    </div>
-                  )}
-                  {!media?.beforeUrl && !media?.afterUrl && (
-                    <p className="text-[#79776f] text-sm">No photos uploaded.</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Deduct Credits Form */}
-              <div className="border-t border-[#dadada] pt-6">
-                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-4">Authorize Deduction</h4>
-
-                <div className="space-y-6">
-                  <div className="flex gap-4 items-center">
-                    <input
-                      type="number"
-                      value={deductAmount}
-                      onChange={(e) => setDeductAmount(e.target.value)}
-                      placeholder="Amount"
-                      className="border border-[#c9c6bd] rounded-md p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
-
-                    />
-                    <button
-                      onClick={handleDeduct}
-                      disabled={!signatureConfirmed || (visits.find(v => v.id === selectedVisitId)?.isCheckedOut && !overrideCheckoutLock)}
-                      className="bg-[#1a1c1c] text-white px-6 py-3 rounded-md hover:bg-[#2f3131] transition text-sm uppercase tracking-widest disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
-
-                    >
-                      Confirm & Deduct
-                    </button>
-                  </div>
-                  
-                  {!(visits.find(v => v.id === selectedVisitId)?.isCheckedOut) || overrideCheckoutLock ? (
-                    <div className="space-y-2">
-                      <label className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] block">Patient Signature *</label>
-
-                      <div className="border border-[#dadada] bg-white w-fit">
-                        <canvas
-                          ref={deductCanvasRef}
-                          width={400}
-                          height={150}
-                          onMouseDown={startDrawingDeduct}
-                          onMouseMove={drawDeduct}
-                          onMouseUp={stopDrawingDeduct}
-                          onMouseLeave={stopDrawingDeduct}
-                          onTouchStart={startDrawingDeduct}
-                          onTouchMove={drawDeduct}
-                          onTouchEnd={stopDrawingDeduct}
-                          className="cursor-crosshair touch-none"
-                        />
-
-                        <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
-                          <button
-                            type="button"
-                            onClick={clearSignatureDeduct}
-                            className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] transition"
-                          >
-                            Clear Signature
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setSignatureConfirmed(true)}
-                            className={`text-xs uppercase tracking-widest font-medium transition ${signatureConfirmed ? 'text-[#605f54]' : 'text-[#1a1c1c] hover:text-[#605f54]'}`}
-                          >
-                            {signatureConfirmed ? '✓ Confirmed' : 'Confirm Signature'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="border border-[#c9c6bd] bg-[#f9f9f9] p-6 flex justify-between items-center w-full max-w-md">
-                      <div>
-                        <p className="text-xs uppercase tracking-widest text-[#605f54] mb-2">✓ Visit Signed & Confirmed</p>
-                        {visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl && (
-                          <img 
-                            src={visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl} 
-                            alt="Signature" 
-                            className="w-32 h-16 object-contain mt-2 border border-[#dadada] bg-white" 
-                          />
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-3 items-end">
-                        <button
-                          type="button"
-                          onClick={() => window.open(`/patient/${patientId}/visit/${selectedVisitId}/print`, '_blank')}
-                          className="text-xs uppercase tracking-widest text-[#1a1c1c] hover:text-[#605f54] underline"
-                        >
-                          Print Summary
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (window.confirm("Are you sure you want to unlock this visit for re-signing? This will require a new deduction authorization.")) {
-                              setOverrideCheckoutLock(true);
-                              setSignatureConfirmed(false);
-                            }
-                          }}
-                          className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline"
-                        >
-                          Unlock to Re-sign
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
 
 
