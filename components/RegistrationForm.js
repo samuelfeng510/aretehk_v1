@@ -88,166 +88,173 @@ export default function RegistrationForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Patient Registration</h1>
+    <div className="max-w-5xl mx-auto p-10 bg-[#ffffff] border border-[#dadada] rounded-none font-sans text-[#1a1c1c]">
+      <h1 className="text-4xl font-serif font-light mb-8 text-[#1a1c1c]">Patient Registration</h1>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Client Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Name (姓名) *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Date of Birth (出生日期) *</label>
-            <input
-              type="date"
-              name="dob"
-              value={formData.dob}
-              onChange={handleInputChange}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Gender (性別) *</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            >
-              <option value="">Select...</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Contact Number (聯絡電話) *</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Identity Card Number (身份證號碼) *</label>
-            <input
-              type="text"
-              name="hkid"
-              value={formData.hkid}
-              onChange={handleInputChange}
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
+        <div>
+          <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Client Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Name (姓名) *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Date of Birth (出生日期) *</label>
+              <input
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Gender (性別) *</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              >
+                <option value="">Select...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Contact Number (聯絡電話) *</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Identity Card Number (身份證號碼) *</label>
+              <input
+                type="text"
+                name="hkid"
+                value={formData.hkid}
+                onChange={handleInputChange}
+                required
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              />
+            </div>
           </div>
         </div>
 
         {/* Health Condition */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Health Condition</h2>
+        <div className="space-y-6 border-t border-[#dadada] pt-6">
+          <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Health Condition</h2>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <input
               type="checkbox"
               name="takingMedication"
               checked={formData.takingMedication}
               onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
             />
-            <label className="ml-2 block text-sm text-gray-900">Taking Medication (服用藥物)</label>
+            <label className="text-sm text-[#48473f]">Taking Medication (服用藥物)</label>
           </div>
           
           {formData.takingMedication && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Please describe your medication:</label>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Please describe your medication:</label>
               <textarea
                 name="medicationDetails"
                 value={formData.medicationDetails}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                rows="3"
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
               />
             </div>
           )}
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <input
               type="checkbox"
               name="pregnantOrBreastfeeding"
               checked={formData.pregnantOrBreastfeeding}
               onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
             />
-            <label className="ml-2 block text-sm text-gray-900">Pregnant or Breastfeeding (懷孕或哺乳)</label>
+            <label className="text-sm text-[#48473f]">Pregnant or Breastfeeding (懷孕或哺乳)</label>
           </div>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <input
               type="checkbox"
               name="allergies"
               checked={formData.allergies}
               onChange={handleInputChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              className="h-4 w-4 border-[#c9c6bd] rounded-none text-[#1a1c1c] focus:ring-0"
             />
-            <label className="ml-2 block text-sm text-gray-900">Allergies (過敏史)</label>
+            <label className="text-sm text-[#48473f]">Allergies (過敏史)</label>
           </div>
           
           {formData.allergies && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Please describe your allergies:</label>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Please describe your allergies:</label>
               <textarea
                 name="allergyDetails"
                 value={formData.allergyDetails}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                rows="3"
+                className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
               />
             </div>
           )}
           
           <div>
-            <label className="block text-sm font-medium text-gray-700">Other Conditions (其他健康狀況)</label>
+            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Other Conditions (其他健康狀況)</label>
             <textarea
               name="otherConditions"
               value={formData.otherConditions}
               onChange={handleInputChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              rows="3"
+              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
             />
           </div>
         </div>
 
         {/* Authorization */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Authorization</h2>
+        <div className="space-y-6 border-t border-[#dadada] pt-6">
+          <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Authorization</h2>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700">Prior Medical Aesthetic Experience</label>
+            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Prior Medical Aesthetic Experience</label>
             <textarea
               name="priorExperience"
               value={formData.priorExperience}
               onChange={handleInputChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              rows="3"
+              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700">Signature (簽名) *</label>
-            <div className="border border-gray-300 rounded-md p-2 bg-gray-50">
+            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Signature (簽名) *</label>
+            <div className="border border-[#dadada] bg-white w-fit">
               <canvas
                 ref={canvasRef}
                 width={400}
@@ -256,15 +263,17 @@ export default function RegistrationForm() {
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseLeave={stopDrawing}
-                className="border border-gray-200 bg-white cursor-crosshair"
+                className="cursor-crosshair"
               />
-              <button
-                type="button"
-                onClick={clearSignature}
-                className="mt-2 text-sm text-red-600 hover:text-red-800"
-              >
-                Clear Signature
-              </button>
+              <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
+                <button
+                  type="button"
+                  onClick={clearSignature}
+                  className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] transition"
+                >
+                  Clear Signature
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -272,7 +281,7 @@ export default function RegistrationForm() {
         <div className="pt-6">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700 transition duration-150"
+            className="w-full bg-[#1a1c1c] text-white p-4 rounded-none font-medium uppercase tracking-widest hover:bg-[#2f3131] transition"
           >
             Submit Registration
           </button>

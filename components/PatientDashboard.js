@@ -5,8 +5,10 @@ import { db, storage } from '../lib/firebase';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 import { doc, getDoc, collection, query, orderBy, getDocs, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import Link from 'next/link';
 
 import { deductCredits, addCredits } from '../lib/ledger';
+
 import ClinicalRemarksForm from './ClinicalRemarksForm';
 import ImageUploader from './ImageUploader';
 import BeforeAfterSlider from './BeforeAfterSlider';
@@ -25,6 +27,9 @@ export default function PatientDashboard({ patientId }) {
 
   const [loading, setLoading] = useState(true);
   const [deductAmount, setDeductAmount] = useState('');
+  const [addAmount, setAddAmount] = useState('');
+  const [isAddCreditUnlocked, setIsAddCreditUnlocked] = useState(false);
+
   const [selectedVisitId, setSelectedVisitId] = useState(null);
   const [remarks, setRemarks] = useState([]);
   const [media, setMedia] = useState(null);
@@ -261,10 +266,18 @@ export default function PatientDashboard({ patientId }) {
 
 
   const handleAddCredits = async () => {
+    const amount = parseFloat(addAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid amount of credits to add.');
+      return;
+    }
     try {
-      await addCredits(patientId, 1000); // Add 1000 credits for testing
-      alert('1000 credits added!');
+      await addCredits(patientId, amount);
+      alert(`${amount} credits added!`);
+      setAddAmount('');
+      setIsAddCreditUnlocked(false); // Re-lock after success
       // Refresh patient data
+
       const patientRef = doc(db, 'patients', patientId);
       const patientSnap = await getDoc(patientRef);
       setPatient(patientSnap.data());
@@ -277,28 +290,60 @@ export default function PatientDashboard({ patientId }) {
   if (!patient) return <div className="p-6">Patient not found.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">{patient.name}'s Dashboard</h1>
-        <div className="text-lg font-semibold text-blue-600">
-          Balance: {patient.currentCreditBalance || 0} Credits
+    <div className="max-w-5xl mx-auto p-10 bg-[#f9f9f9] space-y-12 font-sans text-[#1a1c1c]">
+      <div className="flex justify-between items-baseline border-b border-[#dadada] pb-6">
+        <div>
+          <Link href="/" className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] transition mb-2 block">
+            ← Back to Patient List
+          </Link>
+          <h1 className="text-4xl font-serif font-light text-[#1a1c1c]">{patient.name}'s Dashboard</h1>
+        </div>
+        <div className="text-sm uppercase tracking-widest text-[#605f54]">
+          Balance: <span className="text-lg font-serif text-[#1a1c1c]">{patient.currentCreditBalance || 0}</span> Credits
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="flex gap-4">
+      <div className="flex gap-6 items-center">
         <button
           onClick={handleNewVisit}
-          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+          className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
         >
           New Visit
         </button>
-        <button
-          onClick={handleAddCredits}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          Add 1000 Credits (Test)
-        </button>
+        
+        <div className="flex gap-2 items-center">
+          {!isAddCreditUnlocked ? (
+            <button
+              onClick={() => setIsAddCreditUnlocked(true)}
+              className="bg-[#eeeeee] text-[#1a1c1c] px-4 py-3 rounded-none hover:bg-[#e2e2e2] transition text-sm uppercase tracking-widest flex items-center gap-2"
+            >
+              🔒 Unlock Add Credit
+            </button>
+          ) : (
+            <>
+              <input
+                type="number"
+                value={addAmount}
+                onChange={(e) => setAddAmount(e.target.value)}
+                placeholder="Amount"
+                className="border border-[#c9c6bd] rounded-none p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              />
+              <button
+                onClick={handleAddCredits}
+                className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
+              >
+                Add Credits
+              </button>
+              <button
+                onClick={() => setIsAddCreditUnlocked(false)}
+                className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline ml-2"
+              >
+                Lock
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
 
@@ -306,34 +351,36 @@ export default function PatientDashboard({ patientId }) {
 
 
       {/* Visit History */}
-      <div className="border-t pt-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Visit History</h2>
+      <div className="border-t border-[#dadada] pt-8">
+        <h2 className="text-3xl font-serif font-light text-[#1a1c1c] mb-6">Visit History</h2>
         {visits.length === 0 ? (
-          <p className="text-gray-600">No visits recorded yet.</p>
+          <p className="text-[#79776f] font-sans">No visits recorded yet.</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="divide-y divide-[#dadada]">
             {visits.map((visit, index) => (
-              <li key={visit.id} className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                <div className="flex justify-between">
-                  <span className="font-medium">
-                    Visit #{visits.length - index} — {visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleString() : new Date(visit.visitDate).toLocaleString()}
+              <li key={visit.id} className="py-6 flex flex-col space-y-3">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-lg font-serif text-[#1a1c1c]">
+                    Visit #{visits.length - index} — <span className="text-sm font-sans text-[#79776f]">{visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleString() : new Date(visit.visitDate).toLocaleString()}</span>
                   </span>
-                  <span className="text-sm text-gray-500">ID: {visit.id.substring(0, 6)}...</span>
+                  <div className="flex gap-4 items-baseline">
+                    <span className="text-xs uppercase tracking-widest text-[#79776f]">ID: {visit.id.substring(0, 6)}</span>
 
-                  <button
-                    onClick={() => setSelectedVisitId(visit.id)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    {selectedVisitId === visit.id ? 'Selected' : 'Add Remark'}
-                  </button>
+                    <button
+                      onClick={() => setSelectedVisitId(visit.id)}
+                      className={`text-xs uppercase tracking-widest font-medium transition ${selectedVisitId === visit.id ? 'text-[#1a1c1c]' : 'text-[#605f54] hover:text-[#1a1c1c]'}`}
+                    >
+                      {selectedVisitId === visit.id ? 'Selected' : 'Details'}
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mt-2">
-                  <span className="text-sm font-medium text-gray-700">Treatments: </span>
+                <div className="text-sm text-[#79776f]">
+                  <span className="uppercase tracking-widest text-xs text-[#605f54] mr-2">Treatments</span>
                   {visit.treatmentsPerformed?.length > 0 ? (
-                    <span>{visit.treatmentsPerformed.join(', ')}</span>
+                    <span className="font-sans">{visit.treatmentsPerformed.join(', ')}</span>
                   ) : (
-                    <span className="text-gray-500">None logged</span>
+                    <span className="font-sans text-[#c9c6bd]">None logged</span>
                   )}
                 </div>
               </li>
@@ -344,7 +391,9 @@ export default function PatientDashboard({ patientId }) {
 
       {/* Clinical Remarks Section */}
       {selectedVisitId && (
-        <div className="border-t pt-4 space-y-4">
+        <div className="border-t border-[#dadada] pt-8 space-y-8">
+          <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Visit Details</h2>
+          
           <ClinicalRemarksForm 
             patientId={patientId} 
             visitId={selectedVisitId} 
@@ -356,8 +405,8 @@ export default function PatientDashboard({ patientId }) {
           />
           
           {/* Visual Documentation */}
-          <div className="border-t pt-4 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Visual Documentation</h3>
+          <div className="border-t border-[#dadada] pt-6 space-y-4">
+            <h3 className="text-xl font-serif font-light text-[#1a1c1c]">Visual Documentation</h3>
             <div>
               <ImageUploader 
                 patientId={patientId} 
@@ -371,22 +420,21 @@ export default function PatientDashboard({ patientId }) {
             </div>
           </div>
 
-          
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Remarks for Visit #{visits.length - visits.findIndex(v => v.id === selectedVisitId)}</h3>
+            <h3 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Remarks for Visit #{visits.length - visits.findIndex(v => v.id === selectedVisitId)}</h3>
             {remarks.length === 0 ? (
-              <p className="text-gray-600">No remarks logged for this visit.</p>
+              <p className="text-[#79776f] font-sans">No remarks logged for this visit.</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-4 divide-y divide-[#eeeeee]">
                 {remarks.map((remark) => (
-                  <li key={remark.id} className="border-b pb-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{remark.anatomicalSite} - {remark.dosage} ml</span>
-                      <span className="text-sm text-gray-500">
+                  <li key={remark.id} className="pt-4 first:pt-0 flex flex-col space-y-1">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-medium text-[#1a1c1c]">{remark.anatomicalSite} — {remark.dosage} ml</span>
+                      <span className="text-xs text-[#79776f]">
                         {remark.createdAt?.toDate ? remark.createdAt.toDate().toLocaleString() : ''}
                       </span>
                     </div>
-                    <p className="text-gray-700 text-sm mt-1">{remark.narrative}</p>
+                    <p className="text-[#48473f] text-sm leading-relaxed">{remark.narrative}</p>
                   </li>
                 ))}
               </ul>
@@ -394,69 +442,69 @@ export default function PatientDashboard({ patientId }) {
           </div>
 
           {/* Visit Summary & Checkout */}
-          <div className="border-t pt-4 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Visit Summary & Checkout</h3>
+          <div className="border-t border-[#dadada] pt-6 space-y-4">
+            <h3 className="text-xl font-serif font-light text-[#1a1c1c]">Visit Summary & Checkout</h3>
             
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+            <div className="bg-[#ffffff] p-6 border border-[#dadada] space-y-6">
               <div>
-                <h4 className="text-sm font-medium text-gray-500">Treatments Performed</h4>
+                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Treatments Performed</h4>
                 {remarks.length === 0 ? (
-                  <p className="text-gray-600 text-sm">No treatments logged.</p>
+                  <p className="text-[#79776f] text-sm">No treatments logged.</p>
                 ) : (
-                  <ul className="list-disc list-inside text-sm text-gray-700">
+                  <ul className="list-disc list-inside text-sm text-[#48473f] space-y-1">
                     {remarks.map((remark) => (
-                      <li key={remark.id}>{remark.anatomicalSite} - {remark.dosage} ml</li>
+                      <li key={remark.id}>{remark.anatomicalSite} — {remark.dosage} ml</li>
                     ))}
                   </ul>
                 )}
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-500">Visual Proof</h4>
-                <div className="flex gap-4 mt-1">
+                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Visual Proof</h4>
+                <div className="flex gap-6 mt-2">
                   {media?.beforeUrl && (
                     <div>
-                      <p className="text-xs text-gray-500">Before</p>
-                      <img src={media.beforeUrl} alt="Before" className="w-32 h-24 object-cover rounded-md border" />
+                      <p className="text-xs uppercase tracking-widest text-[#79776f] mb-1">Before</p>
+                      <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
                     </div>
                   )}
                   {media?.afterUrl && (
                     <div>
-                      <p className="text-xs text-gray-500">After</p>
-                      <img src={media.afterUrl} alt="After" className="w-32 h-24 object-cover rounded-md border" />
+                      <p className="text-xs uppercase tracking-widest text-[#79776f] mb-1">After</p>
+                      <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
                     </div>
                   )}
                   {!media?.beforeUrl && !media?.afterUrl && (
-                    <p className="text-gray-600 text-sm">No photos uploaded.</p>
+                    <p className="text-[#79776f] text-sm">No photos uploaded.</p>
                   )}
                 </div>
               </div>
 
               {/* Deduct Credits Form */}
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium text-gray-500 mb-2">Authorize Deduction</h4>
-                <div className="space-y-4">
+              <div className="border-t border-[#dadada] pt-6">
+                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-4">Authorize Deduction</h4>
+                <div className="space-y-6">
                   <div className="flex gap-4 items-center">
                     <input
                       type="number"
                       value={deductAmount}
                       onChange={(e) => setDeductAmount(e.target.value)}
                       placeholder="Amount"
-                      className="border border-gray-300 rounded-md p-2 w-32 bg-white"
+                      className="border border-[#c9c6bd] rounded-none p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
                     />
                     <button
                       onClick={handleDeduct}
                       disabled={!signatureConfirmed || (visits.find(v => v.id === selectedVisitId)?.isCheckedOut && !overrideCheckoutLock)}
-                      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
                     >
                       Confirm & Deduct
                     </button>
                   </div>
                   
                   {!(visits.find(v => v.id === selectedVisitId)?.isCheckedOut) || overrideCheckoutLock ? (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Patient Signature *</label>
-                      <div className="border border-gray-300 rounded-md p-2 bg-white w-fit">
+                    <div className="space-y-2">
+                      <label className="text-xs uppercase tracking-widest text-[#605f54] block">Patient Signature *</label>
+                      <div className="border border-[#dadada] bg-white w-fit">
                         <canvas
                           ref={deductCanvasRef}
                           width={400}
@@ -465,20 +513,20 @@ export default function PatientDashboard({ patientId }) {
                           onMouseMove={drawDeduct}
                           onMouseUp={stopDrawingDeduct}
                           onMouseLeave={stopDrawingDeduct}
-                          className="border border-gray-200 bg-white cursor-crosshair"
+                          className="cursor-crosshair"
                         />
-                        <div className="flex justify-between mt-1">
+                        <div className="flex justify-between border-t border-[#dadada] p-3 bg-[#f9f9f9]">
                           <button
                             type="button"
                             onClick={clearSignatureDeduct}
-                            className="text-sm text-red-600 hover:text-red-800"
+                            className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] transition"
                           >
                             Clear Signature
                           </button>
                           <button
                             type="button"
                             onClick={() => setSignatureConfirmed(true)}
-                            className={`text-sm font-medium ${signatureConfirmed ? 'text-green-600' : 'text-blue-600 hover:text-blue-800'}`}
+                            className={`text-xs uppercase tracking-widest font-medium transition ${signatureConfirmed ? 'text-[#605f54]' : 'text-[#1a1c1c] hover:text-[#605f54]'}`}
                           >
                             {signatureConfirmed ? '✓ Confirmed' : 'Confirm Signature'}
                           </button>
@@ -486,14 +534,14 @@ export default function PatientDashboard({ patientId }) {
                       </div>
                     </div>
                   ) : (
-                    <div className="border border-green-200 bg-green-50 p-4 rounded-md flex justify-between items-center w-full max-w-md">
+                    <div className="border border-[#c9c6bd] bg-[#f9f9f9] p-6 flex justify-between items-center w-full max-w-md">
                       <div>
-                        <p className="text-green-700 font-medium">✓ Visit Signed & Confirmed</p>
+                        <p className="text-xs uppercase tracking-widest text-[#605f54] mb-2">✓ Visit Signed & Confirmed</p>
                         {visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl && (
                           <img 
                             src={visits.find(v => v.id === selectedVisitId)?.checkoutSignatureUrl} 
                             alt="Signature" 
-                            className="w-32 h-16 object-contain mt-2 border bg-white rounded" 
+                            className="w-32 h-16 object-contain mt-2 border border-[#dadada] bg-white" 
                           />
                         )}
                       </div>
@@ -505,7 +553,7 @@ export default function PatientDashboard({ patientId }) {
                             setSignatureConfirmed(false);
                           }
                         }}
-                        className="text-sm text-gray-600 hover:text-gray-800 underline"
+                        className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline"
                       >
                         Unlock to Re-sign
                       </button>
@@ -521,38 +569,38 @@ export default function PatientDashboard({ patientId }) {
 
 
       {/* Cross-Visit Comparison Section */}
-      <div className="border-t pt-6 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-800">Cross-Visit Comparison</h2>
-        <p className="text-sm text-gray-600">Select any two visits to compare photos.</p>
+      <div className="border-t border-[#dadada] pt-8 space-y-6">
+        <h2 className="text-3xl font-serif font-light text-[#1a1c1c]">Cross-Visit Comparison</h2>
+        <p className="text-sm text-[#79776f] font-sans">Select any two visits to compare photos.</p>
         
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-6 items-center">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">Visit A (Left Image)</label>
+            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Visit A (Left Image)</label>
             <select
               value={compareVisitAId || ''}
               onChange={(e) => setCompareVisitAId(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
             >
               <option value="">Select Visit...</option>
-              {visits.map((visit) => (
+              {visits.map((visit, index) => (
                 <option key={visit.id} value={visit.id}>
-                  {visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleDateString() : new Date(visit.visitDate).toLocaleDateString()} (ID: {visit.id.substring(0, 5)})
+                  {visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleDateString() : new Date(visit.visitDate).toLocaleDateString()} (Visit #{visits.length - index})
                 </option>
               ))}
             </select>
           </div>
           
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">Visit B (Right Image)</label>
+            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Visit B (Right Image)</label>
             <select
               value={compareVisitBId || ''}
               onChange={(e) => setCompareVisitBId(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
             >
               <option value="">Select Visit...</option>
-              {visits.map((visit) => (
+              {visits.map((visit, index) => (
                 <option key={visit.id} value={visit.id}>
-                  {visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleDateString() : new Date(visit.visitDate).toLocaleDateString()} (ID: {visit.id.substring(0, 5)})
+                  {visit.visitDate?.toDate ? visit.visitDate.toDate().toLocaleDateString() : new Date(visit.visitDate).toLocaleDateString()} (Visit #{visits.length - index})
                 </option>
               ))}
             </select>
@@ -560,12 +608,14 @@ export default function PatientDashboard({ patientId }) {
         </div>
 
         {mediaA || mediaB ? (
-          <BeforeAfterSlider 
-            beforeUrl={mediaA?.beforeUrl || mediaA?.afterUrl || ''} 
-            afterUrl={mediaB?.afterUrl || mediaB?.beforeUrl || ''} 
-          />
+          <div className="border border-[#dadada] p-4 bg-white">
+            <BeforeAfterSlider 
+              beforeUrl={mediaA?.beforeUrl || mediaA?.afterUrl || ''} 
+              afterUrl={mediaB?.afterUrl || mediaB?.beforeUrl || ''} 
+            />
+          </div>
         ) : (
-          <div className="text-gray-500 text-center p-6 bg-gray-50 rounded-lg">
+          <div className="text-[#79776f] text-center p-10 bg-[#ffffff] border border-[#dadada] rounded-none font-sans">
             Select visits with images to compare.
           </div>
         )}

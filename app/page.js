@@ -26,61 +26,65 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Aretehk Clinic Portal</h1>
-          <div className="text-sm text-gray-500">Logged in as Staff</div>
+    <div className="min-h-screen bg-[#f9f9f9] p-10 font-sans text-[#1a1c1c]">
+      <div className="max-w-5xl mx-auto space-y-12">
+        <header className="flex justify-between items-baseline border-b border-[#dadada] pb-6">
+          <h1 className="text-4xl font-serif italic text-[#1a1c1c]">Aretehk Clinic Portal</h1>
+
+          <div className="text-xs uppercase tracking-widest text-[#605f54]">Logged in as Staff</div>
         </header>
 
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Link href="/register" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition border border-gray-200 flex flex-col justify-between h-32">
+          <Link href="/register" className="bg-[#ffffff] p-8 border border-[#dadada] hover:border-[#1a1c1c] transition flex flex-col justify-between h-40">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">Register New Patient</h2>
-              <p className="text-gray-600 text-sm mt-1">Onboard a new patient with signature.</p>
+              <h2 className="text-2xl font-serif italic text-[#1a1c1c]">Register New Patient</h2>
+
+              <p className="text-[#79776f] text-sm mt-2 leading-relaxed">Onboard a new patient with signature.</p>
             </div>
-            <span className="text-blue-600 text-sm font-medium">Go to Registration &rarr;</span>
+            <span className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline">Go to Registration &rarr;</span>
           </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col justify-between h-32">
+          <div className="bg-[#ffffff] p-8 border border-[#dadada] flex flex-col justify-between h-40">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">Clinic Stats</h2>
-              <p className="text-gray-600 text-sm mt-1">Summary of today's activity.</p>
+              <h2 className="text-2xl font-serif italic text-[#1a1c1c]">Clinic Stats</h2>
+
+              <p className="text-[#79776f] text-sm mt-2 leading-relaxed">Summary of today's activity.</p>
             </div>
-            <span className="text-gray-500 text-sm">Total Registered Patients: {patients.length}</span>
+            <span className="text-xs uppercase tracking-widest text-[#79776f]">Total Registered Patients: <span className="font-serif text-[#1a1c1c] text-lg">{patients.length}</span></span>
           </div>
         </div>
 
         {/* Patient Directory / Queue */}
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Patient Directory</h2>
+        <div className="bg-[#ffffff] p-8 border border-[#dadada]">
+          <h2 className="text-3xl font-serif italic text-[#1a1c1c] mb-6">Patient Directory</h2>
+
           
           {loading ? (
-            <p className="text-gray-600">Loading patients...</p>
+            <p className="text-[#79776f] font-sans">Loading patients...</p>
           ) : patients.length === 0 ? (
-            <p className="text-gray-600">No patients registered yet.</p>
+            <p className="text-[#79776f] font-sans">No patients registered yet.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HKID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <table className="min-w-full divide-y divide-[#dadada]">
+                <thead>
+                  <tr className="bg-[#f9f9f9]">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">HKID</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">Phone</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">Balance</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-[#605f54] uppercase tracking-widest">Action</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-[#eeeeee]">
                   {patients.map((patient) => (
-                    <tr key={patient.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{patient.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.hkid}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.phone}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.currentCreditBalance || 0}</td>
+                    <tr key={patient.id} className="hover:bg-[#f9f9f9] transition">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#1a1c1c] font-serif">{patient.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#48473f] font-sans">{patient.hkid}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#48473f] font-sans">{patient.phone}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#48473f] font-serif">{patient.currentCreditBalance || 0}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/patient/${patient.id}`} className="text-blue-600 hover:text-blue-900">
+                        <Link href={`/patient/${patient.id}`} className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline">
                           View Dashboard
                         </Link>
                       </td>

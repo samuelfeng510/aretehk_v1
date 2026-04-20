@@ -59,18 +59,18 @@ export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Add Clinical Remark</h2>
+    <div className="bg-[#ffffff] p-8 border border-[#dadada] rounded-none font-sans text-[#1a1c1c]">
+      <h2 className="text-2xl font-serif font-light text-[#1a1c1c] mb-6">Add Clinical Remark</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Anatomical Site *</label>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Anatomical Site *</label>
           <select
             name="anatomicalSite"
             value={formData.anatomicalSite}
             onChange={handleInputChange}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
           >
             <option value="">Select Site...</option>
             {anatomicalSites.map((site) => (
@@ -80,7 +80,7 @@ export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Volumetric Dosage (ml / Units) *</label>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Volumetric Dosage (ml / Units) *</label>
           <input
             type="number"
             name="dosage"
@@ -88,19 +88,19 @@ export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
             onChange={handleInputChange}
             step="0.1"
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
             placeholder="e.g., 1.0"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Clinical Narrative</label>
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Clinical Narrative</label>
           <textarea
             name="narrative"
             value={formData.narrative}
             onChange={handleInputChange}
-            rows="3"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            rows="4"
+            className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c] leading-relaxed"
             placeholder="Enter clinical notes here..."
           />
         </div>
@@ -108,7 +108,7 @@ export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded-md font-semibold hover:bg-blue-700 transition disabled:bg-gray-400"
+          className="w-full bg-[#1a1c1c] text-white p-4 rounded-none text-sm font-medium uppercase tracking-widest hover:bg-[#2f3131] transition disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
         >
           {loading ? 'Saving...' : 'Save Remark'}
         </button>
