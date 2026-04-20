@@ -12,7 +12,8 @@ export default function Home() {
 
   const translations = {
     en: {
-      title: 'Clinic Portal',
+      title: 'Clinical Workspace',
+
       loggedInAs: 'Logged in as Staff',
       registerNewPatient: 'Register New Patient',
       onboardNewPatient: 'Onboard a new patient with signature.',
@@ -31,7 +32,8 @@ export default function Home() {
       viewDashboard: 'View Dashboard'
     },
     zh: {
-      title: '診所系統',
+      title: '臨床工作區',
+
       loggedInAs: '職員已登入',
       registerNewPatient: '登記新病人',
       onboardNewPatient: '登記新病人並簽署。',
@@ -83,7 +85,8 @@ export default function Home() {
     <div className="min-h-screen bg-[#f9f9f9] p-10 font-sans text-[#1a1c1c]">
       <div className="max-w-5xl mx-auto space-y-12">
         <header className="flex justify-between items-baseline border-b border-[#dadada] pb-6">
-          <h1 className="text-4xl font-serif italic text-[#1a1c1c]">{t.title}</h1>
+          <h1 className="text-4xl font-serif text-[#1a1c1c]">{t.title}</h1>
+
 
           <div className="flex items-center gap-4">
             <div className="text-xs uppercase tracking-widest text-[#605f54]">{t.loggedInAs}</div>
@@ -97,17 +100,29 @@ export default function Home() {
 
 
             <div>
-              <h2 className="text-2xl font-serif italic text-[#1a1c1c]">{t.clinicStats}</h2>
-
-              <p className="text-[#79776f] text-sm mt-2 leading-relaxed">{t.summaryToday}</p>
+              <h2 className="text-2xl font-serif text-[#1a1c1c]">{t.clinicStats}</h2>
             </div>
-            <span className="text-xs uppercase tracking-widest text-[#79776f]">{t.totalPatients}: <span className="font-serif text-[#1a1c1c] text-lg">{patients.length}</span></span>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+              <div className="flex flex-col">
+                <span className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f]">{t.totalPatients}</span>
+                <span className="font-serif text-[#1a1c1c] text-3xl mt-1">{patients.length}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs uppercase tracking-[0.08em] font-light text-[#c9c6bd]">Visits Today (WIP)</span>
+                <span className="font-serif text-[#c9c6bd] text-3xl mt-1">0</span>
+              </div>
+            </div>
+
+
           </div>
         </div>
 
         {/* Patient Directory / Queue */}
         <div className="bg-[#ffffff] p-8 border border-[#dadada] rounded-md">
-          <h2 className="text-3xl font-serif italic text-[#1a1c1c] mb-6">{t.patientDirectory}</h2>
+          <h2 className="text-2xl font-serif text-[#1a1c1c] mb-6">{t.patientDirectory}</h2>
+
+
 
           
           {loading ? (
@@ -119,11 +134,12 @@ export default function Home() {
               <table className="min-w-full divide-y divide-[#dadada]">
                 <thead>
                   <tr className="bg-[#f9f9f9]">
-                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.name}</th>
-                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.hkid}</th>
-                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.phone}</th>
-                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.balance}</th>
-                    <th className="px-6 py-4 text-left text-xs font-normal text-[#605f54] uppercase tracking-widest">{t.action}</th>
+                    <th className="px-6 py-4 text-left text-xs font-light text-[#605f54] uppercase tracking-[0.08em]">{t.name}</th>
+                    <th className="px-6 py-4 text-left text-xs font-light text-[#605f54] uppercase tracking-[0.08em]">{t.hkid}</th>
+                    <th className="px-6 py-4 text-left text-xs font-light text-[#605f54] uppercase tracking-[0.08em]">{t.phone}</th>
+                    <th className="px-6 py-4 text-left text-xs font-light text-[#605f54] uppercase tracking-[0.08em]">{t.balance}</th>
+                    <th className="px-6 py-4 text-left text-xs font-light text-[#605f54] uppercase tracking-[0.08em]">{t.action}</th>
+
 
                   </tr>
                 </thead>
@@ -135,7 +151,8 @@ export default function Home() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#48473f] font-sans">{patient.phone}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#48473f] font-serif">{patient.currentCreditBalance || 0}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/patient/${patient.id}`} className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline">
+                        <Link href={`/patient/${patient.id}`} className="text-xs uppercase tracking-widest text-[#3d2813] hover:text-[#5c4028] font-medium underline">
+
                           {t.viewDashboard}
                         </Link>
                       </td>

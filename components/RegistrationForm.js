@@ -194,17 +194,8 @@ export default function RegistrationForm() {
               />
             </div>
             
-            <div>
-              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Identity Card Number (身份證號碼) *</label>
-              <input
-                type="text"
-                name="hkid"
-                value={formData.hkid}
-                onChange={handleInputChange}
-                required
-                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
-              />
-            </div>
+            
+
           </div>
         </div>
 

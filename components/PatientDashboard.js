@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { db, storage } from '../lib/firebase';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
-import { doc, getDoc, collection, query, orderBy, getDocs, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, getDocs, addDoc, serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
+
 import Link from 'next/link';
 
 import { deductCredits, addCredits } from '../lib/ledger';
@@ -246,6 +247,24 @@ export default function PatientDashboard({ patientId }) {
     }
   };
 
+  const handleDeletePatient = async () => {
+    const confirmName = prompt(`To delete this patient, please type the patient's name "${patient.name}":`);
+    if (confirmName === patient.name) {
+      try {
+        const patientRef = doc(db, 'patients', patientId);
+        await deleteDoc(patientRef);
+        alert('Patient profile deleted successfully.');
+        window.location.href = '/'; // Redirect to directory
+      } catch (error) {
+        console.error("Error deleting patient: ", error);
+        alert('Error deleting patient.');
+      }
+    } else if (confirmName !== null) {
+      alert('Name mismatch. Deletion cancelled.');
+    }
+  };
+
+
 
 
   const handleNewVisit = async () => {
@@ -339,7 +358,8 @@ export default function PatientDashboard({ patientId }) {
     <div className="max-w-5xl mx-auto p-10 bg-[#f9f9f9] space-y-12 font-sans text-[#1a1c1c]">
       <div className="flex justify-between items-baseline border-b border-[#dadada] pb-6">
         <div>
-          <Link href="/" className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] transition mb-2 block">
+          <Link href="/" className="text-xs uppercase tracking-widest text-[#3d2813] hover:text-[#5c4028] font-medium transition mb-2 block">
+
             ← Back to Patient List
           </Link>
           <h1 className="text-2xl sm:text-4xl font-serif font-light text-[#1a1c1c]">{patient.name}'s Dashboard</h1>
@@ -354,7 +374,8 @@ export default function PatientDashboard({ patientId }) {
       <div className="flex gap-6 items-center">
         <button
           onClick={handleNewVisit}
-          className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
+          className="bg-[#1a1c1c] text-white px-6 py-3 rounded-md hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
+
         >
           New Visit
         </button>
@@ -363,7 +384,8 @@ export default function PatientDashboard({ patientId }) {
           {!isAddCreditUnlocked ? (
             <button
               onClick={() => setIsAddCreditUnlocked(true)}
-              className="bg-[#eeeeee] text-[#1a1c1c] px-4 py-3 rounded-none hover:bg-[#e2e2e2] transition text-sm uppercase tracking-widest flex items-center gap-2"
+              className="bg-[#eeeeee] text-[#1a1c1c] px-4 py-3 rounded-md hover:bg-[#e2e2e2] transition text-sm uppercase tracking-widest flex items-center gap-2"
+
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Unlock Add Credit
@@ -376,17 +398,20 @@ export default function PatientDashboard({ patientId }) {
                 value={addAmount}
                 onChange={(e) => setAddAmount(e.target.value)}
                 placeholder="Amount"
-                className="border border-[#c9c6bd] rounded-none p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                className="border border-[#c9c6bd] rounded-md p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+
               />
               <button
                 onClick={handleAddCredits}
-                className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
+                className="bg-[#1a1c1c] text-white px-6 py-3 rounded-md hover:bg-[#2f3131] transition text-sm uppercase tracking-widest"
+
               >
                 Add Credits
               </button>
               <button
                 onClick={() => setIsAddCreditUnlocked(false)}
-                className="text-xs uppercase tracking-widest text-[#79776f] hover:text-[#1a1c1c] underline ml-2"
+                className="text-xs uppercase tracking-widest text-[#3d2813] hover:text-[#5c4028] font-medium underline ml-2"
+
               >
                 Lock
               </button>
@@ -405,12 +430,21 @@ export default function PatientDashboard({ patientId }) {
           <h2 className="text-xl sm:text-3xl font-serif font-light text-[#1a1c1c]">Patient Profile</h2>
 
           {!isEditingProfile ? (
-            <button
-              onClick={() => setIsEditingProfile(true)}
-              className="text-xs uppercase tracking-widest text-[#605f54] hover:text-[#1a1c1c] underline transition"
-            >
-              Edit Profile
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsEditingProfile(true)}
+                className="text-xs uppercase tracking-widest text-[#3d2813] hover:text-[#5c4028] font-medium underline transition"
+              >
+                Edit Profile
+              </button>
+              <button
+                onClick={handleDeletePatient}
+                className="text-xs uppercase tracking-widest text-red-600 hover:text-red-800 font-medium underline transition"
+              >
+                Delete Profile
+              </button>
+            </div>
+
           ) : (
             <div className="flex gap-3">
               <button
@@ -435,7 +469,8 @@ export default function PatientDashboard({ patientId }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#ffffff] p-6 border border-[#dadada] rounded-md">
 
           <div>
-            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Client Information</h3>
+            <h3 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Client Information</h3>
+
             {!isEditingProfile ? (
               <>
                 <p className="text-sm font-sans"><strong>Name:</strong> {patient.name}</p>
@@ -487,7 +522,8 @@ export default function PatientDashboard({ patientId }) {
             )}
           </div>
           <div>
-            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Health Condition</h3>
+            <h3 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Health Condition</h3>
+
             {!isEditingProfile ? (
               <>
                 <p className="text-sm font-sans"><strong>Taking Medication:</strong> {patient.takingMedication ? 'Yes' : 'No'}</p>
@@ -550,7 +586,8 @@ export default function PatientDashboard({ patientId }) {
           </div>
           <div className="col-span-1 lg:col-span-2 border-t border-[#eeeeee] pt-4">
 
-            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Treatment Interests</h3>
+            <h3 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Treatment Interests</h3>
+
             {!isEditingProfile ? (
               <p className="text-sm font-sans">{patient.selectedTreatment || 'None selected at registration'}</p>
             ) : (
@@ -570,7 +607,8 @@ export default function PatientDashboard({ patientId }) {
           </div>
           <div className="col-span-1 lg:col-span-2 border-t border-[#eeeeee] pt-4">
 
-            <h3 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Purchased Products</h3>
+            <h3 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Purchased Products</h3>
+
             <p className="text-sm font-sans text-[#79776f]">No products purchased yet.</p>
           </div>
         </div>
@@ -676,7 +714,8 @@ export default function PatientDashboard({ patientId }) {
             
             <div className="bg-[#ffffff] p-6 border border-[#dadada] space-y-6">
               <div>
-                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Treatments Performed</h4>
+                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Treatments Performed</h4>
+
                 {remarks.length === 0 ? (
                   <p className="text-[#79776f] text-sm">No treatments logged.</p>
                 ) : (
@@ -689,17 +728,20 @@ export default function PatientDashboard({ patientId }) {
               </div>
 
               <div>
-                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-2">Visual Proof</h4>
+                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Visual Proof</h4>
+
                 <div className="flex gap-6 mt-2">
                   {media?.beforeUrl && (
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-[#79776f] mb-1">Before</p>
+                      <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">Before</p>
+
                       <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
                     </div>
                   )}
                   {media?.afterUrl && (
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-[#79776f] mb-1">After</p>
+                      <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">After</p>
+
                       <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
                     </div>
                   )}
@@ -711,7 +753,8 @@ export default function PatientDashboard({ patientId }) {
 
               {/* Deduct Credits Form */}
               <div className="border-t border-[#dadada] pt-6">
-                <h4 className="text-xs uppercase tracking-widest text-[#605f54] mb-4">Authorize Deduction</h4>
+                <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-4">Authorize Deduction</h4>
+
                 <div className="space-y-6">
                   <div className="flex gap-4 items-center">
                     <input
@@ -719,12 +762,14 @@ export default function PatientDashboard({ patientId }) {
                       value={deductAmount}
                       onChange={(e) => setDeductAmount(e.target.value)}
                       placeholder="Amount"
-                      className="border border-[#c9c6bd] rounded-none p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+                      className="border border-[#c9c6bd] rounded-md p-3 w-32 bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+
                     />
                     <button
                       onClick={handleDeduct}
                       disabled={!signatureConfirmed || (visits.find(v => v.id === selectedVisitId)?.isCheckedOut && !overrideCheckoutLock)}
-                      className="bg-[#1a1c1c] text-white px-6 py-3 rounded-none hover:bg-[#2f3131] transition text-sm uppercase tracking-widest disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
+                      className="bg-[#1a1c1c] text-white px-6 py-3 rounded-md hover:bg-[#2f3131] transition text-sm uppercase tracking-widest disabled:bg-[#eeeeee] disabled:text-[#c9c6bd] disabled:cursor-not-allowed"
+
                     >
                       Confirm & Deduct
                     </button>
@@ -732,7 +777,8 @@ export default function PatientDashboard({ patientId }) {
                   
                   {!(visits.find(v => v.id === selectedVisitId)?.isCheckedOut) || overrideCheckoutLock ? (
                     <div className="space-y-2">
-                      <label className="text-xs uppercase tracking-widest text-[#605f54] block">Patient Signature *</label>
+                      <label className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] block">Patient Signature *</label>
+
                       <div className="border border-[#dadada] bg-white w-fit">
                         <canvas
                           ref={deductCanvasRef}
@@ -818,11 +864,13 @@ export default function PatientDashboard({ patientId }) {
         
         <div className="flex gap-6 items-center">
           <div className="flex-1">
-            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Visit A (Left Image)</label>
+            <label className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2 block">Visit A (Left Image)</label>
+
             <select
               value={compareVisitAId || ''}
               onChange={(e) => setCompareVisitAId(e.target.value)}
-              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+
             >
               <option value="">Select Visit...</option>
               {visits.map((visit, index) => (
@@ -834,11 +882,13 @@ export default function PatientDashboard({ patientId }) {
           </div>
           
           <div className="flex-1">
-            <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Visit B (Right Image)</label>
+            <label className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2 block">Visit B (Right Image)</label>
+
             <select
               value={compareVisitBId || ''}
               onChange={(e) => setCompareVisitBId(e.target.value)}
-              className="border border-[#c9c6bd] rounded-none p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+              className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
+
             >
               <option value="">Select Visit...</option>
               {visits.map((visit, index) => (
