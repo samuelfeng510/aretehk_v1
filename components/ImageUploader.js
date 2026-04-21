@@ -6,54 +6,39 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function ImageUploader({ patientId, visitId, onSuccess }) {
-  const [beforeFile, setBeforeFile] = useState(null);
-  const [afterFile, setAfterFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (type === 'before') setBeforeFile(file);
-      if (type === 'after') setAfterFile(file);
-    }
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
   };
 
   const handleUpload = async () => {
-    if (!beforeFile && !afterFile) {
+    if (files.length === 0) {
       alert('Please select at least one image.');
       return;
     }
 
     setLoading(true);
     try {
-      let beforeUrl = '';
-      let afterUrl = '';
-
-      // Upload Before Image
-      if (beforeFile) {
-        const beforeRef = ref(storage, `media/${patientId}/${visitId}/before_${Date.now()}_${beforeFile.name}`);
-        await uploadBytes(beforeRef, beforeFile);
-        beforeUrl = await getDownloadURL(beforeRef);
-      }
-
-      // Upload After Image
-      if (afterFile) {
-        const afterRef = ref(storage, `media/${patientId}/${visitId}/after_${Date.now()}_${afterFile.name}`);
-        await uploadBytes(afterRef, afterFile);
-        afterUrl = await getDownloadURL(afterRef);
+      const urls = [];
+      for (const file of files) {
+        const storageRef = ref(storage, `media/${patientId}/${visitId}/${Date.now()}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        urls.push(url);
       }
 
       // Save to Firestore in media subcollection
       const mediaRef = collection(db, 'patients', patientId, 'visits', visitId, 'media');
       await addDoc(mediaRef, {
-        beforeUrl,
-        afterUrl,
+        imageUrls: urls,
         createdAt: serverTimestamp(),
       });
 
       alert('Images uploaded successfully!');
-      setBeforeFile(null);
-      setAfterFile(null);
+      setFiles([]);
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Error uploading images: ", error);
@@ -67,30 +52,25 @@ export default function ImageUploader({ patientId, visitId, onSuccess }) {
     <div className="bg-white p-6 rounded-md border border-[#dadada] space-y-4">
       <h2 className="text-xl font-serif font-light text-[#1a1c1c]">Upload Progress Photos</h2>
 
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Before Treatment</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e, 'before')}
-            className="mt-1 block w-full text-sm text-[#79776f] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#dadada] file:text-xs file:uppercase file:tracking-widest file:bg-[#eeeeee] file:text-[#1a1c1c] hover:file:bg-[#e2e2e2] file:transition"
-          />
-          {beforeFile && <p className="mt-1 text-sm text-green-600">Selected: {beforeFile.name}</p>}
-        </div>
-
-        <div>
-          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">After Treatment</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e, 'after')}
-            className="mt-1 block w-full text-sm text-[#79776f] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#dadada] file:text-xs file:uppercase file:tracking-widest file:bg-[#eeeeee] file:text-[#1a1c1c] hover:file:bg-[#e2e2e2] file:transition"
-          />
-          {afterFile && <p className="mt-1 text-sm text-green-600">Selected: {afterFile.name}</p>}
-        </div>
-
+      <div>
+        <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Select Photos (Multiple)</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileChange}
+          className="mt-1 block w-full text-sm text-[#79776f] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#dadada] file:text-xs file:uppercase file:tracking-widest file:bg-[#eeeeee] file:text-[#1a1c1c] hover:file:bg-[#e2e2e2] file:transition"
+        />
+        {files.length > 0 && (
+          <div className="mt-2 space-y-1">
+            <p className="text-sm font-medium text-[#1a1c1c]">Selected Files ({files.length}):</p>
+            <ul className="text-xs text-[#79776f] list-disc list-inside">
+              {files.map((file, index) => (
+                <li key={index}>{file.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       <button
@@ -100,7 +80,6 @@ export default function ImageUploader({ patientId, visitId, onSuccess }) {
       >
         {loading ? 'Uploading...' : 'Upload Images'}
       </button>
-
     </div>
   );
 }

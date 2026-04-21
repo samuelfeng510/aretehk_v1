@@ -38,6 +38,8 @@ export default function PatientDashboard({ patientId }) {
   const [compareVisitBId, setCompareVisitBId] = useState(null);
   const [mediaA, setMediaA] = useState(null);
   const [mediaB, setMediaB] = useState(null);
+  const [selectedImageA, setSelectedImageA] = useState('');
+  const [selectedImageB, setSelectedImageB] = useState('');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editablePatient, setEditablePatient] = useState({});
 
@@ -138,6 +140,7 @@ export default function PatientDashboard({ patientId }) {
     async function fetchMediaA() {
       if (!patientId || !compareVisitAId) {
         setMediaA(null);
+        setSelectedImageA('');
         return;
       }
       try {
@@ -145,9 +148,18 @@ export default function PatientDashboard({ patientId }) {
         const q = query(mediaRef, orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          setMediaA(querySnapshot.docs[0].data());
+          const data = querySnapshot.docs[0].data();
+          setMediaA(data);
+          if (data.imageUrls && data.imageUrls.length > 0) {
+            setSelectedImageA(data.imageUrls[0]);
+          } else if (data.beforeUrl) {
+            setSelectedImageA(data.beforeUrl);
+          } else if (data.afterUrl) {
+            setSelectedImageA(data.afterUrl);
+          }
         } else {
           setMediaA(null);
+          setSelectedImageA('');
         }
       } catch (error) {
         console.error("Error fetching media A: ", error);
@@ -160,6 +172,7 @@ export default function PatientDashboard({ patientId }) {
     async function fetchMediaB() {
       if (!patientId || !compareVisitBId) {
         setMediaB(null);
+        setSelectedImageB('');
         return;
       }
       try {
@@ -167,9 +180,18 @@ export default function PatientDashboard({ patientId }) {
         const q = query(mediaRef, orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          setMediaB(querySnapshot.docs[0].data());
+          const data = querySnapshot.docs[0].data();
+          setMediaB(data);
+          if (data.imageUrls && data.imageUrls.length > 0) {
+            setSelectedImageB(data.imageUrls[0]);
+          } else if (data.afterUrl) {
+            setSelectedImageB(data.afterUrl);
+          } else if (data.beforeUrl) {
+            setSelectedImageB(data.beforeUrl);
+          }
         } else {
           setMediaB(null);
+          setSelectedImageB('');
         }
       } catch (error) {
         console.error("Error fetching media B: ", error);
@@ -356,7 +378,8 @@ export default function PatientDashboard({ patientId }) {
 
   return (
     <div className="max-w-5xl mx-auto p-10 bg-[#f9f9f9] space-y-12 font-sans text-[#1a1c1c]">
-      <div className="flex justify-between items-baseline border-b border-[#dadada] pb-6">
+      <div className="flex justify-between items-center border-b border-[#dadada] pb-6">
+
         <div>
           <Link href="/" className="text-xs uppercase tracking-widest text-[#3d2813] hover:text-[#5c4028] font-medium transition mb-2 block">
 
@@ -366,7 +389,8 @@ export default function PatientDashboard({ patientId }) {
 
         </div>
         <div className="text-sm uppercase tracking-widest text-[#605f54]">
-          Balance: <span className="text-lg font-serif text-[#1a1c1c]">{patient.currentCreditBalance || 0}</span> Credits
+          Balance: <span className="text-lg font-serif text-[#1a1c1c]">{patient.currentCreditBalance || 0}</span>
+
         </div>
       </div>
 
@@ -589,20 +613,42 @@ export default function PatientDashboard({ patientId }) {
             <h3 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Treatment Interests</h3>
 
             {!isEditingProfile ? (
-              <p className="text-sm font-sans">{patient.selectedTreatment || 'None selected at registration'}</p>
+              <p className="text-sm font-sans">
+                {patient.selectedTreatments && Array.isArray(patient.selectedTreatments)
+                  ? patient.selectedTreatments.join(', ')
+                  : (patient.selectedTreatment || 'None selected at registration')}
+              </p>
+
             ) : (
-              <select
-                value={editablePatient.selectedTreatment || ''}
-                onChange={(e) => setEditablePatient({...editablePatient, selectedTreatment: e.target.value})}
-                className="border border-[#c9c6bd] rounded-md p-2 w-full text-sm"
-              >
-                <option value="">Select Treatment...</option>
-                <option value="Consultation">Initial Consultation</option>
-                <option value="Botox">Botox Treatment</option>
-                <option value="Filler">Dermal Filler</option>
-                <option value="Laser">Laser Rejuvenation</option>
-                <option value="Peel">Chemical Peel</option>
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                {[
+                  { id: 'Consultation', label: 'Initial Consultation' },
+                  { id: 'Botox', label: 'Botox Treatment' },
+                  { id: 'Filler', label: 'Dermal Filler' },
+                  { id: 'Laser', label: 'Laser Rejuvenation' },
+                  { id: 'Peel', label: 'Chemical Peel' },
+                ].map((treatment) => (
+                  <label key={treatment.id} className="flex items-center gap-2 text-sm text-[#48473f] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="selectedTreatments"
+                      value={treatment.id}
+                      checked={editablePatient.selectedTreatments?.includes(treatment.id) || editablePatient.selectedTreatment === treatment.id}
+                      onChange={(e) => {
+                        const { value, checked } = e.target;
+                        const currentArray = editablePatient.selectedTreatments || [];
+                        const newArray = checked 
+                          ? [...currentArray, value] 
+                          : currentArray.filter(v => v !== value);
+                        setEditablePatient({...editablePatient, selectedTreatments: newArray, selectedTreatment: ''});
+                      }}
+                      className="w-4 h-4 border-[#c9c6bd] rounded text-[#1a1c1c] focus:ring-[#1a1c1c]"
+                    />
+                    <span>{treatment.label}</span>
+                  </label>
+                ))}
+              </div>
+
             )}
           </div>
           <div className="col-span-1 lg:col-span-2 border-t border-[#eeeeee] pt-4">
@@ -723,25 +769,35 @@ export default function PatientDashboard({ patientId }) {
                         <div>
                           <h4 className="text-xs uppercase tracking-[0.08em] font-light text-[#605f54] mb-2">Visual Proof</h4>
 
-                          <div className="flex gap-6 mt-2">
-                            {media?.beforeUrl && (
-                              <div>
-                                <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">Before</p>
-
-                                <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
-                              </div>
-                            )}
-                            {media?.afterUrl && (
-                              <div>
-                                <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">After</p>
-
-                                <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
-                              </div>
-                            )}
-                            {!media?.beforeUrl && !media?.afterUrl && (
-                              <p className="text-[#79776f] text-sm">No photos uploaded.</p>
+                          <div className="flex flex-wrap gap-4 mt-2">
+                            {media?.imageUrls && Array.isArray(media.imageUrls) && media.imageUrls.length > 0 ? (
+                              media.imageUrls.map((url, idx) => (
+                                <div key={idx} className="relative">
+                                  <img src={url} alt={`Gallery ${idx + 1}`} className="w-40 h-30 object-cover border border-[#dadada] hover:opacity-90 transition cursor-pointer" />
+                                  <span className="absolute bottom-1 right-1 bg-[#1a1c1c] text-white text-[10px] px-1 rounded-sm opacity-75">{idx + 1}</span>
+                                </div>
+                              ))
+                            ) : (
+                              <>
+                                {media?.beforeUrl && (
+                                  <div>
+                                    <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">Before</p>
+                                    <img src={media.beforeUrl} alt="Before" className="w-40 h-30 object-cover border border-[#dadada]" />
+                                  </div>
+                                )}
+                                {media?.afterUrl && (
+                                  <div>
+                                    <p className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f] mb-1">After</p>
+                                    <img src={media.afterUrl} alt="After" className="w-40 h-30 object-cover border border-[#dadada]" />
+                                  </div>
+                                )}
+                                {!media?.beforeUrl && !media?.afterUrl && (
+                                  <p className="text-[#79776f] text-sm">No photos uploaded.</p>
+                                )}
+                              </>
                             )}
                           </div>
+
                         </div>
 
                         {/* Deduct Credits Form */}
@@ -878,6 +934,37 @@ export default function PatientDashboard({ patientId }) {
                 </option>
               ))}
             </select>
+            
+            {mediaA && (
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                {mediaA.imageUrls && Array.isArray(mediaA.imageUrls) ? (
+                  mediaA.imageUrls.map((url, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`relative w-16 h-12 border-2 ${selectedImageA === url ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`}
+                      onClick={() => setSelectedImageA(url)}
+                    >
+                      <img src={url} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    {mediaA.beforeUrl && (
+                      <div className={`relative w-16 h-12 border-2 ${selectedImageA === mediaA.beforeUrl ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`} onClick={() => setSelectedImageA(mediaA.beforeUrl)}>
+                        <img src={mediaA.beforeUrl} alt="Before" className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 right-0 bg-white text-[8px] px-0.5">B</span>
+                      </div>
+                    )}
+                    {mediaA.afterUrl && (
+                      <div className={`relative w-16 h-12 border-2 ${selectedImageA === mediaA.afterUrl ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`} onClick={() => setSelectedImageA(mediaA.afterUrl)}>
+                        <img src={mediaA.afterUrl} alt="After" className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 right-0 bg-white text-[8px] px-0.5">A</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
           
           <div className="flex-1">
@@ -896,14 +983,45 @@ export default function PatientDashboard({ patientId }) {
                 </option>
               ))}
             </select>
+            
+            {mediaB && (
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                {mediaB.imageUrls && Array.isArray(mediaB.imageUrls) ? (
+                  mediaB.imageUrls.map((url, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`relative w-16 h-12 border-2 ${selectedImageB === url ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`}
+                      onClick={() => setSelectedImageB(url)}
+                    >
+                      <img src={url} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    {mediaB.beforeUrl && (
+                      <div className={`relative w-16 h-12 border-2 ${selectedImageB === mediaB.beforeUrl ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`} onClick={() => setSelectedImageB(mediaB.beforeUrl)}>
+                        <img src={mediaB.beforeUrl} alt="Before" className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 right-0 bg-white text-[8px] px-0.5">B</span>
+                      </div>
+                    )}
+                    {mediaB.afterUrl && (
+                      <div className={`relative w-16 h-12 border-2 ${selectedImageB === mediaB.afterUrl ? 'border-[#1a1c1c]' : 'border-[#dadada]'} cursor-pointer flex-shrink-0`} onClick={() => setSelectedImageB(mediaB.afterUrl)}>
+                        <img src={mediaB.afterUrl} alt="After" className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 right-0 bg-white text-[8px] px-0.5">A</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {mediaA || mediaB ? (
           <div className="border border-[#dadada] p-4 bg-white">
             <BeforeAfterSlider 
-              beforeUrl={mediaA?.beforeUrl || mediaA?.afterUrl || ''} 
-              afterUrl={mediaB?.afterUrl || mediaB?.beforeUrl || ''} 
+              beforeUrl={selectedImageA || ''} 
+              afterUrl={selectedImageB || ''} 
             />
           </div>
         ) : (

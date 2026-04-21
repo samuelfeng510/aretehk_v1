@@ -22,7 +22,7 @@ export default function RegistrationForm() {
     allergyDetails: '',
     otherConditions: '',
     priorExperience: '',
-    selectedTreatment: '',
+    selectedTreatments: [],
   });
 
 
@@ -35,6 +35,18 @@ export default function RegistrationForm() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleMultiCheckboxChange = (e) => {
+    const { name, value, checked } = e.target;
+    setFormData((prev) => {
+      const currentArray = prev[name] || [];
+      if (checked) {
+        return { ...prev, [name]: [...currentArray, value] };
+      } else {
+        return { ...prev, [name]: currentArray.filter((item) => item !== value) };
+      }
+    });
   };
 
   const getCoordinates = (e) => {
@@ -106,6 +118,12 @@ export default function RegistrationForm() {
           alert('Error: A patient with this Identity Card Number already exists.');
           return;
         }
+      }
+
+      // Validation: At least one treatment selected
+      if (!formData.selectedTreatments || formData.selectedTreatments.length === 0) {
+        alert('Please select at least one desired treatment.');
+        return;
       }
 
       // 1. Upload signature to Storage
@@ -278,21 +296,28 @@ export default function RegistrationForm() {
           <div className="border-t border-[#dadada] pt-6">
             <h2 className="text-xl font-serif font-light text-[#1a1c1c] mb-4">Treatment Session</h2>
             <div className="space-y-4">
-              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Select Desired Treatment *</label>
-              <select
-                name="selectedTreatment"
-                value={formData.selectedTreatment}
-                onChange={handleInputChange}
-                required
-                className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
-              >
-                <option value="">Select Treatment...</option>
-                <option value="Consultation">Initial Consultation</option>
-                <option value="Botox">Botox Treatment</option>
-                <option value="Filler">Dermal Filler</option>
-                <option value="Laser">Laser Rejuvenation</option>
-                <option value="Peel">Chemical Peel</option>
-              </select>
+              <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Select Desired Treatments *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'Consultation', label: 'Initial Consultation' },
+                  { id: 'Botox', label: 'Botox Treatment' },
+                  { id: 'Filler', label: 'Dermal Filler' },
+                  { id: 'Laser', label: 'Laser Rejuvenation' },
+                  { id: 'Peel', label: 'Chemical Peel' },
+                ].map((treatment) => (
+                  <label key={treatment.id} className="flex items-center gap-3 text-sm text-[#48473f] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="selectedTreatments"
+                      value={treatment.id}
+                      checked={formData.selectedTreatments?.includes(treatment.id)}
+                      onChange={handleMultiCheckboxChange}
+                      className="w-4 h-4 border-[#c9c6bd] rounded text-[#1a1c1c] focus:ring-[#1a1c1c]"
+                    />
+                    <span>{treatment.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         {/* Authorization */}

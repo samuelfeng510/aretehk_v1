@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react';
 export default function SystemSettings() {
   const [settings, setSettings] = useState({
     clinicName: 'Aretehk',
-    currencySymbol: '$',
-    defaultStaffName: 'Dr. Aris Thorne',
+    clinicLogo: '',
     enableNotifications: true,
     language: 'en',
   });
@@ -30,7 +29,7 @@ export default function SystemSettings() {
 
   const handleSave = () => {
     localStorage.setItem('systemSettings', JSON.stringify(settings));
-    alert('Settings saved locally! (In a full production app, this would be saved to Firebase)');
+    alert('Settings saved locally!');
     // We could trigger a window reload to apply changes if needed, 
     // or use a context provider for real-time updates.
     window.location.reload();
@@ -53,26 +52,34 @@ export default function SystemSettings() {
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Currency Symbol</label>
-          <input
-            type="text"
-            name="currencySymbol"
-            value={settings.currencySymbol}
-            onChange={handleChange}
-            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
-          />
+          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Clinic Logo</label>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 border border-[#dadada] flex items-center justify-center bg-[#f9f9f9]">
+              {settings.clinicLogo ? (
+                <img src={settings.clinicLogo} alt="Preview" className="w-full h-full object-contain" />
+              ) : (
+                <span className="text-xs text-[#79776f]">No Logo</span>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setSettings({...settings, clinicLogo: reader.result});
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className="text-sm text-[#79776f]"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Default Staff Name</label>
-          <input
-            type="text"
-            name="defaultStaffName"
-            value={settings.defaultStaffName}
-            onChange={handleChange}
-            className="border border-[#c9c6bd] rounded-md p-3 w-full bg-white text-sm focus:outline-none focus:border-[#1a1c1c]"
-          />
-        </div>
+
 
         <div>
           <label className="text-xs uppercase tracking-widest text-[#605f54] mb-2 block">Default Language</label>

@@ -1,10 +1,21 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [clinicName, setClinicName] = useState('Arete');
+  const [clinicLogo, setClinicLogo] = useState('');
+
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('systemSettings');
+    if (savedSettings) {
+      const { clinicName, clinicLogo } = JSON.parse(savedSettings);
+      if (clinicName) setClinicName(clinicName);
+      if (clinicLogo) setClinicLogo(clinicLogo);
+    }
+  }, []);
 
   // Hide sidebar on registration page
   if (pathname === '/register') return null;
@@ -29,10 +40,11 @@ export default function Sidebar() {
         </div>
 
         <div className="flex flex-col items-center mb-10">
-          <img src="/logo.svg" alt="Arete Logo" className="w-16 h-auto mb-3 object-contain" />
+          <img src={clinicLogo || "/logo.svg"} alt="Arete Logo" className="w-16 h-auto mb-3 object-contain" />
           {!isCollapsed && (
             <>
-              <h1 className="text-xl font-bold uppercase tracking-wider text-[#3d2813]">Arete</h1>
+              <h1 className="text-xl font-bold uppercase tracking-wider text-[#3d2813]">{clinicName}</h1>
+
               <p className="text-xs uppercase tracking-widest text-[#5c4028]">Clinical Management</p>
             </>
           )}
