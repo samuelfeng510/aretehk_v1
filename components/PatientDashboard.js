@@ -251,6 +251,7 @@ export default function PatientDashboard({ patientId }) {
 
   const clearSignatureDeduct = () => {
     const canvas = deductCanvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setSignatureConfirmed(false);
@@ -705,9 +706,10 @@ export default function PatientDashboard({ patientId }) {
                     <ClinicalRemarksForm 
                       patientId={patientId} 
                       visitId={selectedVisitId} 
-                      onSuccess={() => {
+                      onSuccess={(treatment) => {
+                        setVisits(prevVisits => prevVisits.map(v => v.id === visit.id ? { ...v, treatmentsPerformed: [...(v.treatmentsPerformed || []), treatment] } : v));
                         setSelectedVisitId(null);
-                        setTimeout(() => setSelectedVisitId(selectedVisitId), 100);
+                        setTimeout(() => setSelectedVisitId(visit.id), 100);
                       }}
                     />
                     

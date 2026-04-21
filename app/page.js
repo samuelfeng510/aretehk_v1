@@ -103,7 +103,8 @@ export default function Home() {
               <h2 className="text-2xl font-serif text-[#1a1c1c]">{t.clinicStats}</h2>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+            {/* Mobile View */}
+            <div className="grid grid-cols-1 sm:hidden gap-4 mt-2">
               <div className="flex flex-col">
                 <span className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f]">{t.totalPatients}</span>
                 <span className="font-serif text-[#1a1c1c] text-3xl mt-1">{patients.length}</span>
@@ -113,6 +114,16 @@ export default function Home() {
                 <span className="font-serif text-[#c9c6bd] text-3xl mt-1">0</span>
               </div>
             </div>
+
+            {/* iPad and Desktop View (Ensures numbers align even if text wraps) */}
+            <div className="hidden sm:grid sm:grid-cols-2 gap-x-6 gap-y-1 mt-2 items-baseline">
+              <span className="text-xs uppercase tracking-[0.08em] font-light text-[#79776f]">{t.totalPatients}</span>
+              <span className="text-xs uppercase tracking-[0.08em] font-light text-[#c9c6bd]">Visits Today (WIP)</span>
+              
+              <span className="font-serif text-[#1a1c1c] text-3xl">{patients.length}</span>
+              <span className="font-serif text-[#c9c6bd] text-3xl">0</span>
+            </div>
+
 
 
           </div>

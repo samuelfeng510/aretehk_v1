@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, updateDoc, doc, arrayUnion } from 'firebase/firestore';
 
 export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -47,9 +47,16 @@ export default function ClinicalRemarksForm({ patientId, visitId, onSuccess }) {
         createdAt: serverTimestamp(),
       });
       console.log("Remark added with ID: ", docRef.id);
+      
+      // Update visit document to add to treatmentsPerformed array
+      const visitRef = doc(db, 'patients', patientId, 'visits', visitId);
+      await updateDoc(visitRef, {
+        treatmentsPerformed: arrayUnion(formData.anatomicalSite)
+      });
+
       alert('Clinical remark added!');
       setFormData({ anatomicalSite: '', dosage: '', narrative: '' });
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(formData.anatomicalSite);
     } catch (error) {
       console.error("Error adding remark: ", error);
       alert('Error adding remark.');
