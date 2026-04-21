@@ -86,15 +86,6 @@ export default function Sidebar() {
           {!isCollapsed && <span>Support</span>}
         </a>
 
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} pt-2`}>
-          <div className="w-8 h-8 border border-[#3d2813] rounded-full flex items-center justify-center text-xs font-medium text-[#3d2813] flex-shrink-0">AT</div>
-          {!isCollapsed && (
-            <div>
-              <p className="text-sm font-medium text-[#3d2813]">Dr. Aris Thorne</p>
-              <p className="text-xs text-[#5c4028]">Chief Aesthetician</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

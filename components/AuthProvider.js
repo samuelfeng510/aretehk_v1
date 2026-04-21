@@ -38,7 +38,7 @@ export default function AuthProvider({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+      <div className="w-full min-h-screen flex items-center justify-center bg-[#f9f9f9]">
         <div className="text-xs uppercase tracking-widest text-[#605f54]">Loading Session...</div>
       </div>
     );

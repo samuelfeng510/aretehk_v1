@@ -389,8 +389,20 @@ export default function PatientDashboard({ patientId }) {
     }
   };
 
-  if (loading) return <div className="p-6">Loading dashboard...</div>;
-  if (!patient) return <div className="p-6">Patient not found.</div>;
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-xs uppercase tracking-widest text-[#605f54]">Loading dashboard...</div>
+      </div>
+    );
+  }
+  if (!patient) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-xs uppercase tracking-widest text-[#605f54]">Patient not found.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-10 bg-[#f9f9f9] space-y-12 font-sans text-[#1a1c1c]">
