@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="w-full min-h-screen flex items-center justify-center bg-[#f9f9f9] font-sans text-[#1a1c1c]">
       <div className="bg-[#ffffff] p-12 border border-[#dadada] w-full max-w-md text-center space-y-8 rounded-md">
         <header className="space-y-2">
-          <h1 className="text-3xl font-serif font-light text-[#1a1c1c]">Aretehk</h1>
+          <h1 className="text-3xl font-serif font-light text-[#1a1c1c]">Arete Hong Kong</h1>
           <p className="text-xs uppercase tracking-widest text-[#605f54]">Clinical Management System</p>
         </header>
 
