@@ -13,13 +13,25 @@ export default function AuthProvider({ children }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      
-      if (!user && pathname !== '/login') {
-        router.push('/login');
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const email = user.email || '';
+        const allowedDomains = ['samuelfeng.altostrat.com', 'aretehk.com'];
+        const isAllowed = allowedDomains.some(domain => email.endsWith(`@${domain}`));
+        
+        if (!isAllowed) {
+          alert('Access Denied: Your email domain is not authorized.');
+          await auth.signOut();
+          return;
+        }
+        setUser(user);
+      } else {
+        setUser(null);
+        if (pathname !== '/login') {
+          router.push('/login');
+        }
       }
+      setLoading(false);
     });
     return () => unsubscribe();
   }, [pathname, router]);
