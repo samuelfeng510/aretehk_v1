@@ -16,7 +16,7 @@ export default function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const email = user.email || '';
-        const allowedDomains = ['samuelfeng.altostrat.com', 'aretehk.com'];
+        const allowedDomains = ['samuelfeng.altostrat.com', 'aretehk.com', 'gcloudevent.com'];
         const isAllowed = allowedDomains.some(domain => email.endsWith(`@${domain}`));
         
         if (!isAllowed) {
