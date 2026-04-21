@@ -83,7 +83,22 @@ export default function PatientDashboard({ patientId }) {
         const q = query(visitsRef, orderBy('visitDate', 'desc'));
         const querySnapshot = await getDocs(q);
         const visitsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setVisits(visitsData);
+        
+        // Fallback: Fetch remarks for visits that don't have treatmentsPerformed populated
+        const visitsWithRemarks = await Promise.all(visitsData.map(async (visit) => {
+          if (visit.treatmentsPerformed && visit.treatmentsPerformed.length > 0) {
+            return visit;
+          }
+          // If empty or missing, fetch remarks subcollection
+          const remarksRef = collection(db, 'patients', patientId, 'visits', visit.id, 'remarks');
+          const remarksSnap = await getDocs(remarksRef);
+          const treatments = remarksSnap.docs.map(d => d.data().anatomicalSite).filter(Boolean);
+          // Remove duplicates
+          const uniqueTreatments = [...new Set(treatments)];
+          return { ...visit, treatmentsPerformed: uniqueTreatments };
+        }));
+
+        setVisits(visitsWithRemarks);
 
       } catch (error) {
         console.error("Error fetching data: ", error);
